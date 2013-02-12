@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
@@ -36,6 +37,7 @@ import android.widget.ToggleButton;
 public class EditNotificationActivity extends Activity {
     ListView          lvPackages;
     ToggleButton      tbMode;
+    CheckBox          chkNotificationsOnly;
     SharedPreferences sharedPreferences;
 
     @Override
@@ -45,26 +47,13 @@ public class EditNotificationActivity extends Activity {
 
         lvPackages = (ListView) findViewById(R.id.listPackages);
         tbMode = (ToggleButton) findViewById(R.id.tbMode);
-
-        final List<PackageInfo> pkgAppsList = getPackageManager().getInstalledPackages(0);
-        PackageComparator comparer = new PackageComparator();
-        Collections.sort(pkgAppsList, comparer);
+        chkNotificationsOnly = (CheckBox) findViewById(R.id.chkNotificationsOnly);
         sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
         tbMode.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_EXCLUDE_MODE, false));
+        chkNotificationsOnly.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false));
 
-        ArrayList<String> selected = new ArrayList<String>();
-        for (String strPackage : sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, "").split(",", 0)) {
-            // only add the ones that are still installed, providing cleanup and
-            // faster speeds all in one!
-            for (PackageInfo info : pkgAppsList) {
-                if (info.packageName.equalsIgnoreCase(strPackage)) {
-                    selected.add(strPackage);
-                }
-            }
-        }
-        lvPackages.setAdapter(new packageAdapter(this, pkgAppsList.toArray(new PackageInfo[pkgAppsList.size()]),
-                selected));
         checkAccessibilityService();
+        new LoadAppsTask().execute();
 
     }
 
@@ -123,11 +112,15 @@ public class EditNotificationActivity extends Activity {
         }
         if (!accessibilityFound) {
             findViewById(R.id.tvAccessibilityError).setVisibility(View.VISIBLE);
+            findViewById(R.id.tbMode).setVisibility(View.GONE);
+            findViewById(R.id.tvMode).setVisibility(View.GONE);
             if (Constants.IS_LOGGABLE) {
                 Log.i(Constants.LOG_TAG, "The accessibility service is NOT on!");
             }
         } else {
             findViewById(R.id.tvAccessibilityError).setVisibility(View.GONE);
+            findViewById(R.id.tbMode).setVisibility(View.VISIBLE);
+            findViewById(R.id.tvMode).setVisibility(View.VISIBLE);
             if (Constants.IS_LOGGABLE) {
                 Log.i(Constants.LOG_TAG, "The accessibility service is on!");
             }
@@ -156,14 +149,51 @@ public class EditNotificationActivity extends Activity {
             } else {
                 Log.i(Constants.LOG_TAG, "Mode is is: exclude");
             }
+            if (chkNotificationsOnly.isChecked()) {
+                Log.i(Constants.LOG_TAG, "Only going to send notifications");
+            } else {
+                Log.i(Constants.LOG_TAG, "Sending all types of notifications, such as Toasts");
+            }
             Log.i(Constants.LOG_TAG, "Package list is: " + selectedPackages);
         }
 
         Editor editor = sharedPreferences.edit();
         editor.putBoolean(Constants.PREFERENCE_EXCLUDE_MODE, tbMode.isChecked());
+        editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, chkNotificationsOnly.isChecked());
         editor.putString(Constants.PREFERENCE_PACKAGE_LIST, selectedPackages);
         editor.commit();
         super.finish();
+    }
+
+    private class LoadAppsTask extends AsyncTask<Void, Integer, List<PackageInfo>> {
+        public ArrayList<String> selected;
+
+        @Override
+        protected List<PackageInfo> doInBackground(Void... unused) {
+            final List<PackageInfo> pkgAppsList = getPackageManager().getInstalledPackages(0);
+            PackageComparator comparer = new PackageComparator();
+            Collections.sort(pkgAppsList, comparer);
+            selected = new ArrayList<String>();
+            for (String strPackage : sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, "").split(",", 0)) {
+                // only add the ones that are still installed, providing cleanup
+                // and faster speeds all in one!
+                for (PackageInfo info : pkgAppsList) {
+                    if (info.packageName.equalsIgnoreCase(strPackage)) {
+                        selected.add(strPackage);
+                    }
+                }
+            }
+
+            return pkgAppsList;
+        }
+
+        @Override
+        protected void onPostExecute(List<PackageInfo> pkgAppsList) {
+
+            lvPackages.setAdapter(new packageAdapter(EditNotificationActivity.this, pkgAppsList
+                    .toArray(new PackageInfo[pkgAppsList.size()]), selected));
+
+        }
     }
 
     private class packageAdapter extends ArrayAdapter<PackageInfo> implements OnCheckedChangeListener, OnClickListener {

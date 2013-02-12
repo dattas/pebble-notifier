@@ -8,17 +8,20 @@ import org.json.JSONObject;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.app.Notification;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
 public class NotificationService extends AccessibilityService implements
         SharedPreferences.OnSharedPreferenceChangeListener {
-    private boolean   mode     = false;
-    private String[]  packages = null;
+    private boolean   mode               = false;
+    private boolean   notifications_only = false;
+    private String[]  packages           = null;
     SharedPreferences sharedPreferences;
 
     @Override
@@ -28,6 +31,15 @@ public class NotificationService extends AccessibilityService implements
         String eventPackageName = event.getPackageName().toString();
         if (Constants.IS_LOGGABLE) {
             Log.i(Constants.LOG_TAG, "Service package list is: " + packages.toString());
+        }
+
+        if (notifications_only) {
+            Parcelable parcelable = event.getParcelableData();
+            if (!(parcelable instanceof Notification)) {
+                Log.i(Constants.LOG_TAG, "Event is not a notification and notifications only is enabled. Returning...");
+                return;
+
+            }
         }
 
         if (!mode) {
@@ -103,6 +115,7 @@ public class NotificationService extends AccessibilityService implements
         sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
         mode = sharedPreferences.getBoolean(Constants.PREFERENCE_EXCLUDE_MODE, false);
         packages = sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, "").split(",", 0);
+        notifications_only = sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         AccessibilityServiceInfo info = new AccessibilityServiceInfo();
@@ -119,6 +132,8 @@ public class NotificationService extends AccessibilityService implements
             mode = sharedPreferences.getBoolean(Constants.PREFERENCE_EXCLUDE_MODE, false);
         } else if (key == Constants.PREFERENCE_PACKAGE_LIST) {
             packages = sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, "").split(",", 0);
+        } else if (key == Constants.PREFERENCE_NOTIFICATIONS_ONLY) {
+            notifications_only = sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false);
         }
     }
 }

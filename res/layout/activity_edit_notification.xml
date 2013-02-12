@@ -13,13 +13,13 @@
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/tvMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="34dp"
         android:layout_below="@+id/tvAccessibilityError"
+        android:layout_marginTop="10dp"
         android:text="@string/mode"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -27,11 +27,11 @@
         android:id="@+id/tbMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView1"
-        android:layout_alignBottom="@+id/textView1"
-        android:layout_marginLeft="31dp"
+        android:layout_alignBaseline="@+id/tvMode"
+        android:layout_alignBottom="@+id/tvMode"
+        android:layout_marginLeft="10dp"
         android:layout_below="@+id/tvAccessibilityError"
-        android:layout_toRightOf="@+id/textView1"
+        android:layout_toRightOf="@+id/tvMode"
         android:textOff="Exclude applications below"
         android:textOn="Include ONLY applications below" />
 
@@ -40,10 +40,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/tbMode"
+        android:layout_below="@+id/chkNotificationsOnly"
         android:layout_marginTop="20dp" >
     </ListView>
 
-    
+    <CheckBox
+        android:id="@+id/chkNotificationsOnly"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tbMode"
+        android:text="@string/show_only_notifications" />
 
 </RelativeLayout>

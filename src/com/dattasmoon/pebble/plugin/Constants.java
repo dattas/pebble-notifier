@@ -21,6 +21,7 @@ public final class Constants {
 
     // Shared preferences
     public static final String  PREFERENCE_EXCLUDE_MODE         = LOG_TAG + ".excludeMode";
+    public static final String  PREFERENCE_NOTIFICATIONS_ONLY   = LOG_TAG + ".notificationsOnly";
     public static final String  PREFERENCE_PACKAGE_LIST         = LOG_TAG + ".packageList";
 
     // Intents
