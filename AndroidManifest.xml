@@ -1,0 +1,65 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.dattasmoon.pebble.plugin"
+    android:installLocation="internalOnly"
+    android:versionCode="3"
+    android:versionName="2.0" >
+
+    <uses-sdk
+        android:minSdkVersion="9"
+        android:targetSdkVersion="17" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Locale.Dark">
+        <activity
+            android:name=".EditNotificationActivity"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Locale.Dark"
+            tools:ignore="ExportedActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".EditActivity"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Locale.Dark"
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="ExportedActivity" >
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+		<service android:name=".NotificationService"
+		    android:label="@string/app_name"
+		    android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" 
+		    tools:ignore="ExportedService" 
+		    android:description="@string/accessibility_description">
+            <meta-data
+			    android:name="android.accessibilityservice"
+			    android:resource="@xml/accessibility_service_config" />
+		    <intent-filter>
+		    	<action android:name="android.accessibilityservice.AccessibilityService"/>
+			</intent-filter>	
+		</service>
+        <receiver
+            android:name=".FireReceiver"
+            android:exported="true"
+            android:process=":background"
+            tools:ignore="ExportedReceiver" >
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

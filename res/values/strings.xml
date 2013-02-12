@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="app_name" tools:ignore="MissingTranslation">Pebble Notifier</string>
+    <string name="notification_title_hint" tools:ignore="MissingTranslation">My pebble notification title</string>
+    <string name="notification_body_hint" tools:ignore="MissingTranslation">Notification body goes here! You can use any tasker variables such as %NTITLE for the notification title</string>
+    <string name="body" tools:ignore="MissingTranslation">Body</string>
+    <string name="title" tools:ignore="MissingTranslation">Title</string>
+    <string name="mode" tools:ignore="MissingTranslation">Mode</string>
+    <string name="accessibility_description" tools:ignore="MissingTranslation">This allows Pebble Notifier to forward notifications to your pebble!</string>
+    <string name="application_icon" tools:ignore="MissingTranslation">Application Icon</string>
+    <string name="accessability_error" tools:ignore="MissingTranslation">This application will not work until you have enabled Pebble Notifier in the Accessibility settings</string>
+
+</resources>

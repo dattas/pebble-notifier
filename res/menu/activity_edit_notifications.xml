@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/btnUncheckAll" android:title="Uncheck All"></item>
+    <item android:id="@+id/btnSave" android:title="Save"></item>
+    <item android:id="@+id/btnAbout" android:title="About" android:visible="false"></item>
+    <item android:id="@+id/btnDonate" android:title="Donate"></item>
+    
+
+</menu>
