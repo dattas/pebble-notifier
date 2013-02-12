@@ -53,6 +53,7 @@ public class EditNotificationActivity extends Activity {
         chkNotificationsOnly.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false));
 
         checkAccessibilityService();
+
         if (findViewById(R.id.listPackages).isEnabled()) {
             new LoadAppsTask().execute();
         }
@@ -132,14 +133,14 @@ public class EditNotificationActivity extends Activity {
     }
 
     @Override
-    public void finish() {
+    protected void onSaveInstanceState(Bundle outState) {
+        save();
+        super.onSaveInstanceState(outState);
+    }
+
+    public void save() {
         String selectedPackages = "";
         ArrayList<String> tmpArray = new ArrayList<String>();
-        if (!lvPackages.isEnabled()) {
-            // if the list is not enabled, we don't want to save settings
-            super.finish();
-            return;
-        }
         for (String strPackage : ((packageAdapter) lvPackages.getAdapter()).selected) {
             if (!strPackage.isEmpty()) {
                 if (!tmpArray.contains(strPackage)) {
@@ -171,6 +172,17 @@ public class EditNotificationActivity extends Activity {
         editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, chkNotificationsOnly.isChecked());
         editor.putString(Constants.PREFERENCE_PACKAGE_LIST, selectedPackages);
         editor.commit();
+
+    }
+
+    @Override
+    public void finish() {
+        if (!lvPackages.isEnabled()) {
+            // if the list is not enabled, we don't want to save settings
+            super.finish();
+            return;
+        }
+        save();
         super.finish();
     }
 
@@ -206,9 +218,9 @@ public class EditNotificationActivity extends Activity {
     }
 
     private class packageAdapter extends ArrayAdapter<PackageInfo> implements OnCheckedChangeListener, OnClickListener {
-        private final Context          context;
-        private final PackageInfo[]    packages;
-        public final ArrayList<String> selected;
+        private final Context       context;
+        private final PackageInfo[] packages;
+        public ArrayList<String>    selected;
 
         public packageAdapter(Context context, PackageInfo[] packages, ArrayList<String> selected) {
             super(context, R.layout.list_application_item, packages);
