@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.dattasmoon.pebble.plugin"
     android:installLocation="internalOnly"
-    android:versionCode="4"
+    android:versionCode="5"
     android:versionName="2.1" >
 
     <uses-sdk

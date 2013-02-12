@@ -53,7 +53,9 @@ public class EditNotificationActivity extends Activity {
         chkNotificationsOnly.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false));
 
         checkAccessibilityService();
-        new LoadAppsTask().execute();
+        if (findViewById(R.id.listPackages).isEnabled()) {
+            new LoadAppsTask().execute();
+        }
 
     }
 
@@ -114,6 +116,8 @@ public class EditNotificationActivity extends Activity {
             findViewById(R.id.tvAccessibilityError).setVisibility(View.VISIBLE);
             findViewById(R.id.tbMode).setVisibility(View.GONE);
             findViewById(R.id.tvMode).setVisibility(View.GONE);
+            findViewById(R.id.chkNotificationsOnly).setVisibility(View.GONE);
+            findViewById(R.id.listPackages).setEnabled(false);
             if (Constants.IS_LOGGABLE) {
                 Log.i(Constants.LOG_TAG, "The accessibility service is NOT on!");
             }
@@ -131,6 +135,11 @@ public class EditNotificationActivity extends Activity {
     public void finish() {
         String selectedPackages = "";
         ArrayList<String> tmpArray = new ArrayList<String>();
+        if (!lvPackages.isEnabled()) {
+            // if the list is not enabled, we don't want to save settings
+            super.finish();
+            return;
+        }
         for (String strPackage : ((packageAdapter) lvPackages.getAdapter()).selected) {
             if (!strPackage.isEmpty()) {
                 if (!tmpArray.contains(strPackage)) {

@@ -8,7 +8,7 @@
     <string name="mode" tools:ignore="MissingTranslation">Mode</string>
     <string name="accessibility_description" tools:ignore="MissingTranslation">This allows Pebble Notifier to forward notifications to your pebble!</string>
     <string name="application_icon" tools:ignore="MissingTranslation">Application Icon</string>
-    <string name="accessability_error" tools:ignore="MissingTranslation">This application will not work until you have enabled Pebble Notifier in the Accessibility settings</string>
-    <string name="show_only_notifications" tools:ignore="MissingTranslation">Show only notifications</string>
+    <string name="accessability_error" tools:ignore="MissingTranslation">This application will not work by itself until you have enabled Pebble Notifier in the Accessibility settings</string>
+    <string name="show_only_notifications" tools:ignore="MissingTranslation">Send only notifications</string>
 
 </resources>
