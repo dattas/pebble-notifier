@@ -5,33 +5,47 @@ import android.util.Log;
 
 public final class Constants {
 
-    public static final String  LOG_TAG                         = "com.dattasmoon.pebble.plugin";
-    public static final boolean IS_LOGGABLE                     = BuildConfig.DEBUG;
-    public static final String  DONATION_URL                    = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3W6PJ6EK6JVJY";
+    public static final String  LOG_TAG                              = "com.dattasmoon.pebble.plugin";
+    public static final boolean IS_LOGGABLE                          = BuildConfig.DEBUG;
+    public static final String  DONATION_URL                         = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3W6PJ6EK6JVJY";
 
     // bundle extras
-    public static final String  BUNDLE_EXTRA_INT_VERSION_CODE   = LOG_TAG + ".INT_VERSION_CODE";
-    public static final String  BUNDLE_EXTRA_STRING_TITLE       = LOG_TAG + ".STRING_TITLE";
-    public static final String  BUNDLE_EXTRA_STRING_BODY        = LOG_TAG + ".STRING_BODY";
+    public static final String  BUNDLE_EXTRA_INT_VERSION_CODE        = LOG_TAG + ".INT_VERSION_CODE";
+    public static final String  BUNDLE_EXTRA_STRING_TITLE            = LOG_TAG + ".STRING_TITLE";
+    public static final String  BUNDLE_EXTRA_STRING_BODY             = LOG_TAG + ".STRING_BODY";
+    public static final String  BUNDLE_EXTRA_INT_TYPE                = LOG_TAG + ".INT_TYPE";
+    public static final String  BUNDLE_EXTRA_INT_MODE                = LOG_TAG + ".INT_MODE";
+    public static final String  BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY = LOG_TAG + ".BOOL_NOTIFICATIONS_ONLY";
+    public static final String  BUNDLE_EXTRA_STRING_PACKAGE_LIST     = LOG_TAG + ".STRING_PACKAGE_LIST";
 
     // Tasker bundle extras
-    public static final String  BUNDLE_EXTRA_REPLACE_KEY        = "net.dinglisch.android.tasker.extras.VARIABLE_REPLACE_KEYS";
-    public static final String  BUNDLE_EXTRA_REPLACE_VALUE      = BUNDLE_EXTRA_STRING_TITLE + " "
-                                                                        + BUNDLE_EXTRA_STRING_BODY;
+    public static final String  BUNDLE_EXTRA_REPLACE_KEY             = "net.dinglisch.android.tasker.extras.VARIABLE_REPLACE_KEYS";
+    public static final String  BUNDLE_EXTRA_REPLACE_VALUE           = BUNDLE_EXTRA_STRING_TITLE + " "
+                                                                             + BUNDLE_EXTRA_STRING_BODY;
 
     // Shared preferences
-    public static final String  PREFERENCE_EXCLUDE_MODE         = LOG_TAG + ".excludeMode";
-    public static final String  PREFERENCE_NOTIFICATIONS_ONLY   = LOG_TAG + ".notificationsOnly";
-    public static final String  PREFERENCE_PACKAGE_LIST         = LOG_TAG + ".packageList";
+    public static final String  PREFERENCE_EXCLUDE_MODE              = LOG_TAG + ".excludeMode";
+    public static final String  PREFERENCE_MODE                      = LOG_TAG + ".mode";
+    public static final String  PREFERENCE_NOTIFICATIONS_ONLY        = LOG_TAG + ".notificationsOnly";
+    public static final String  PREFERENCE_PACKAGE_LIST              = LOG_TAG + ".packageList";
+    public static final String  PREFERENCE_MIN_NOTIFICATION_WAIT     = LOG_TAG + ".minNotificationWait";
 
     // Intents
-    public static final String  INTENT_SEND_PEBBLE_NOTIFICATION = "com.getpebble.action.SEND_NOTIFICATION";
+    public static final String  INTENT_SEND_PEBBLE_NOTIFICATION      = "com.getpebble.action.SEND_NOTIFICATION";
 
     // Pebble specific items
-    public static final String  PEBBLE_MESSAGE_TYPE_ALERT       = "PEBBLE_ALERT";
+    public static final String  PEBBLE_MESSAGE_TYPE_ALERT            = "PEBBLE_ALERT";
 
     // Accessibility specific items
-    public static final String  ACCESSIBILITY_SERVICE           = "com.dattasmoon.pebble.plugin/com.dattasmoon.pebble.plugin.NotificationService";
+    public static final String  ACCESSIBILITY_SERVICE                = "com.dattasmoon.pebble.plugin/com.dattasmoon.pebble.plugin.NotificationService";
+
+    public static enum Type {
+        NOTIFICATION, SETTINGS
+    };
+
+    public static enum Mode {
+        OFF, EXCLUDE, INCLUDE
+    }
 
     public static int getVersionCode(final Context context) {
         try {

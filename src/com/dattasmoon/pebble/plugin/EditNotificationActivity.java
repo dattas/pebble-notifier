@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,7 +33,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class EditNotificationActivity extends Activity {
+public class EditNotificationActivity extends AbstractPluginActivity {
+
     ListView          lvPackages;
     ToggleButton      tbMode;
     CheckBox          chkNotificationsOnly;
@@ -48,20 +48,27 @@ public class EditNotificationActivity extends Activity {
         lvPackages = (ListView) findViewById(R.id.listPackages);
         tbMode = (ToggleButton) findViewById(R.id.tbMode);
         chkNotificationsOnly = (CheckBox) findViewById(R.id.chkNotificationsOnly);
-        sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
-        tbMode.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_EXCLUDE_MODE, false));
-        chkNotificationsOnly.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false));
+        if (mode == Mode.STANDARD) {
+            sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
+            tbMode.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_EXCLUDE_MODE, false));
+            chkNotificationsOnly.setChecked(sharedPreferences
+                    .getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false));
+        } else if (mode == Mode.LOCALE) {
+            // tbMode.setChecked(localeBundle.ge)
+            chkNotificationsOnly.setChecked(localeBundle.getBoolean(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY,
+                    false));
+        }
 
         checkAccessibilityService();
 
         if (findViewById(R.id.listPackages).isEnabled()) {
             new LoadAppsTask().execute();
         }
-
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.activity_edit_notifications, menu);
         return true;
@@ -84,7 +91,6 @@ public class EditNotificationActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-
     }
 
     public void checkAccessibilityService() {
@@ -139,39 +145,44 @@ public class EditNotificationActivity extends Activity {
     }
 
     public void save() {
-        String selectedPackages = "";
-        ArrayList<String> tmpArray = new ArrayList<String>();
-        for (String strPackage : ((packageAdapter) lvPackages.getAdapter()).selected) {
-            if (!strPackage.isEmpty()) {
-                if (!tmpArray.contains(strPackage)) {
-                    tmpArray.add(strPackage);
-                    selectedPackages += strPackage + ",";
+        if (mode == Mode.STANDARD) {
+            String selectedPackages = "";
+            ArrayList<String> tmpArray = new ArrayList<String>();
+            for (String strPackage : ((packageAdapter) lvPackages.getAdapter()).selected) {
+                if (!strPackage.isEmpty()) {
+                    if (!tmpArray.contains(strPackage)) {
+                        tmpArray.add(strPackage);
+                        selectedPackages += strPackage + ",";
+                    }
                 }
             }
-        }
-        tmpArray.clear();
-        if (!selectedPackages.isEmpty()) {
-            selectedPackages = selectedPackages.substring(0, selectedPackages.length() - 1);
-        }
-        if (Constants.IS_LOGGABLE) {
-            if (tbMode.isChecked()) {
-                Log.i(Constants.LOG_TAG, "Mode is is: include only");
-            } else {
-                Log.i(Constants.LOG_TAG, "Mode is is: exclude");
+            tmpArray.clear();
+            tmpArray = null;
+            if (!selectedPackages.isEmpty()) {
+                selectedPackages = selectedPackages.substring(0, selectedPackages.length() - 1);
             }
-            if (chkNotificationsOnly.isChecked()) {
-                Log.i(Constants.LOG_TAG, "Only going to send notifications");
-            } else {
-                Log.i(Constants.LOG_TAG, "Sending all types of notifications, such as Toasts");
+            if (Constants.IS_LOGGABLE) {
+                if (tbMode.isChecked()) {
+                    Log.i(Constants.LOG_TAG, "Mode is is: include only");
+                } else {
+                    Log.i(Constants.LOG_TAG, "Mode is is: exclude");
+                }
+                if (chkNotificationsOnly.isChecked()) {
+                    Log.i(Constants.LOG_TAG, "Only going to send notifications");
+                } else {
+                    Log.i(Constants.LOG_TAG, "Sending all types of notifications, such as Toasts");
+                }
+                Log.i(Constants.LOG_TAG, "Package list is: " + selectedPackages);
             }
-            Log.i(Constants.LOG_TAG, "Package list is: " + selectedPackages);
-        }
 
-        Editor editor = sharedPreferences.edit();
-        editor.putBoolean(Constants.PREFERENCE_EXCLUDE_MODE, tbMode.isChecked());
-        editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, chkNotificationsOnly.isChecked());
-        editor.putString(Constants.PREFERENCE_PACKAGE_LIST, selectedPackages);
-        editor.commit();
+            Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.PREFERENCE_EXCLUDE_MODE, tbMode.isChecked());
+            editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, chkNotificationsOnly.isChecked());
+            editor.putString(Constants.PREFERENCE_PACKAGE_LIST, selectedPackages);
+            editor.commit();
+        } else if (mode == Mode.LOCALE) {
+            // TODO: fill
+        }
 
     }
 
@@ -195,7 +206,18 @@ public class EditNotificationActivity extends Activity {
             PackageComparator comparer = new PackageComparator();
             Collections.sort(pkgAppsList, comparer);
             selected = new ArrayList<String>();
-            for (String strPackage : sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, "").split(",", 0)) {
+            String packageList;
+            if (mode == Mode.LOCALE) {
+                packageList = localeBundle.getString(Constants.BUNDLE_EXTRA_STRING_PACKAGE_LIST);
+                if (packageList == null) {
+                    // this can be null if it doesn't currently exist in the
+                    // locale bundle, handle gracefully
+                    packageList = "";
+                }
+            } else {
+                packageList = sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, "");
+            }
+            for (String strPackage : packageList.split(",")) {
                 // only add the ones that are still installed, providing cleanup
                 // and faster speeds all in one!
                 for (PackageInfo info : pkgAppsList) {

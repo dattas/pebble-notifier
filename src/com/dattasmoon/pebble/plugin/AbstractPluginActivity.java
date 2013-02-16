@@ -12,98 +12,106 @@ import android.view.MenuItem;
 import com.twofortyfouram.locale.BreadCrumber;
 
 public abstract class AbstractPluginActivity extends Activity {
-	private boolean mIsCancelled = false;
+    public enum Mode {
+        STANDARD, LOCALE
+    };
 
-	@Override
-	protected void onCreate(final Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    private boolean mIsCancelled = false;
+    protected Mode  mode         = Mode.STANDARD;
+    Bundle          localeBundle = null;
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			setupTitleApi11();
-		} else {
-			setTitle(BreadCrumber.generateBreadcrumb(getApplicationContext(),
-					getIntent(), getString(R.string.app_name)));
-		}
-	}
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void setupTitleApi11() {
-		CharSequence callingApplicationLabel = null;
-		try {
-			callingApplicationLabel = getPackageManager().getApplicationLabel(
-					getPackageManager().getApplicationInfo(getCallingPackage(),
-							0));
-		} catch (final NameNotFoundException e) {
-			if (Constants.IS_LOGGABLE) {
-				Log.e(Constants.LOG_TAG, "Calling package couldn't be found", e);
-			}
-		}
-		if (null != callingApplicationLabel) {
-			setTitle(callingApplicationLabel);
-		}
-	}
+        localeBundle = getIntent().getBundleExtra(com.twofortyfouram.locale.Intent.EXTRA_BUNDLE);
 
-	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		super.onCreateOptionsMenu(menu);
+        if (null == savedInstanceState && null != localeBundle) {
+            mode = Mode.LOCALE;
+        }
 
-		getMenuInflater().inflate(
-				R.menu.twofortyfouram_locale_help_save_dontsave, menu);
+        if (mode == Mode.LOCALE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                setupTitleApi11();
+            } else {
+                setTitle(BreadCrumber.generateBreadcrumb(getApplicationContext(), getIntent(),
+                        getString(R.string.app_name)));
+            }
+        }
+    }
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			setupActionBarApi11();
-		}
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void setupTitleApi11() {
+        CharSequence callingApplicationLabel = null;
+        try {
+            callingApplicationLabel = getPackageManager().getApplicationLabel(
+                    getPackageManager().getApplicationInfo(getCallingPackage(), 0));
+        } catch (final NameNotFoundException e) {
+            if (Constants.IS_LOGGABLE) {
+                Log.e(Constants.LOG_TAG, "Calling package couldn't be found", e);
+            }
+        }
+        if (null != callingApplicationLabel) {
+            setTitle(callingApplicationLabel);
+        }
+    }
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			setupActionBarApi14();
-		}
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        if (mode == Mode.LOCALE) {
+            getMenuInflater().inflate(R.menu.twofortyfouram_locale_help_save_dontsave, menu);
 
-		return true;
-	}
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                setupActionBarApi11();
+            }
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void setupActionBarApi11() {
-		getActionBar().setSubtitle(
-				BreadCrumber.generateBreadcrumb(getApplicationContext(),
-						getIntent(), getString(R.string.app_name)));
-	}
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                setupActionBarApi14();
+            }
+        }
 
-	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-	private void setupActionBarApi14() {
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		try {
-			getActionBar()
-					.setIcon(
-							getPackageManager().getApplicationIcon(
-									getCallingPackage()));
-		} catch (final NameNotFoundException e) {
-			if (Constants.IS_LOGGABLE) {
-				Log.w(Constants.LOG_TAG,
-						"An error occurred loading the host's icon", e);
-			}
-		}
-	}
+        return true;
+    }
 
-	@Override
-	public boolean onMenuItemSelected(final int featureId, final MenuItem item) {
-		final int id = item.getItemId();
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void setupActionBarApi11() {
+        getActionBar().setSubtitle(
+                BreadCrumber.generateBreadcrumb(getApplicationContext(), getIntent(), getString(R.string.app_name)));
+    }
 
-		if (android.R.id.home == id) {
-			finish();
-			return true;
-		} else if (R.id.twofortyfouram_locale_menu_dontsave == id) {
-			mIsCancelled = true;
-			finish();
-			return true;
-		} else if (R.id.twofortyfouram_locale_menu_save == id) {
-			finish();
-			return true;
-		}
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    private void setupActionBarApi14() {
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        try {
+            getActionBar().setIcon(getPackageManager().getApplicationIcon(getCallingPackage()));
+        } catch (final NameNotFoundException e) {
+            if (Constants.IS_LOGGABLE) {
+                Log.w(Constants.LOG_TAG, "An error occurred loading the host's icon", e);
+            }
+        }
+    }
 
-		return super.onOptionsItemSelected(item);
-	}
+    @Override
+    public boolean onMenuItemSelected(final int featureId, final MenuItem item) {
+        final int id = item.getItemId();
 
-	protected boolean isCanceled() {
-		return mIsCancelled;
-	}
+        if (android.R.id.home == id) {
+            finish();
+            return true;
+        } else if (R.id.twofortyfouram_locale_menu_dontsave == id) {
+            mIsCancelled = true;
+            finish();
+            return true;
+        } else if (R.id.twofortyfouram_locale_menu_save == id) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    protected boolean isCanceled() {
+        return mIsCancelled;
+    }
 }
