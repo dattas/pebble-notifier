@@ -11,29 +11,36 @@
         android:layout_centerHorizontal="true"
         android:text="@string/accessability_error"
         android:visibility="gone" />
-
+    <TextView
+        android:id="@+id/tvTaskerNotice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tasker_notice"
+        android:layout_below="@+id/tvAccessibilityError"
+        android:visibility="gone" />
     <TextView
         android:id="@+id/tvMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_below="@+id/tvAccessibilityError"
+        android:layout_below="@+id/tvTaskerNotice"
         android:layout_marginTop="10dp"
         android:text="@string/mode"
         android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <ToggleButton
-        android:id="@+id/tbMode"
+    <Spinner
+        android:id="@+id/spMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/tvMode"
-        android:layout_alignBottom="@+id/tvMode"
-        android:layout_marginLeft="10dp"
-        android:layout_below="@+id/tvAccessibilityError"
-        android:layout_toRightOf="@+id/tvMode"
-        android:textOff="Exclude applications below"
-        android:textOn="Include ONLY applications below" />
+        android:layout_alignTop="@+id/tvMode"
+        android:layout_below="@+id/tvTaskerNotice"
+        android:layout_marginLeft="40dp"
+        android:layout_toRightOf="@+id/tvMode" />
+    <CheckBox
+        android:id="@+id/chkNotificationsOnly"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/spMode"
+        android:text="@string/show_only_notifications" />
 
     <ListView
         android:id="@+id/listPackages"
@@ -42,14 +49,13 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/chkNotificationsOnly"
         android:layout_marginTop="20dp" >
+        
     </ListView>
-
-    <CheckBox
-        android:id="@+id/chkNotificationsOnly"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/tbMode"
-        android:text="@string/show_only_notifications" />
-
+    <TextView android:id="@android:id/empty"
+		    android:layout_width="fill_parent"
+		    android:layout_height="match_parent"
+		    android:gravity="center"
+		    android:layout_below="@+id/chkNotificationsOnly"
+		    android:text="@string/loading_applications" 
+		    android:textAppearance="?android:attr/textAppearanceLarge"/>
 </RelativeLayout>

@@ -1,6 +1,7 @@
 package com.dattasmoon.pebble.plugin;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,52 +27,40 @@ public class FireReceiver extends BroadcastReceiver {
             // running when they saved the action
             int bundleVersionCode = intent.getIntExtra(Constants.BUNDLE_EXTRA_INT_VERSION_CODE, 1);
 
-            Type type = Type.values()[intent.getIntExtra(Constants.BUNDLE_EXTRA_INT_MODE, Type.NOTIFICATION.ordinal())];
-            if (type == Type.NOTIFICATION) {
+            Type type = Type.values()[intent.getIntExtra(Constants.BUNDLE_EXTRA_INT_TYPE, Type.NOTIFICATION.ordinal())];
+            switch (type) {
+            case NOTIFICATION:
                 String title = intent.getStringExtra(Constants.BUNDLE_EXTRA_STRING_TITLE);
                 String body = intent.getStringExtra(Constants.BUNDLE_EXTRA_STRING_BODY);
 
                 sendAlertToPebble(context, bundleVersionCode, title, body);
-            } else if (type == Type.SETTINGS) {
+                break;
+            case SETTINGS:
                 Mode mode = Mode.values()[intent.getIntExtra(Constants.BUNDLE_EXTRA_INT_MODE, Mode.OFF.ordinal())];
                 boolean notificationsOnly = intent.getBooleanExtra(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY,
                         false);
                 String packageList = intent.getStringExtra(Constants.BUNDLE_EXTRA_STRING_PACKAGE_LIST);
                 setNotificationSettings(context, bundleVersionCode, mode, notificationsOnly, packageList);
+                break;
             }
         }
     }
 
     public void setNotificationSettings(final Context context, int bundleVersionCode, Mode mode,
             boolean notificationsOnly, String packageList) {
-        String selectedPackages = "";
 
-        // ensure that all duplicates are removed before saving to ensure the
-        // service is as efficient as possible
-        ArrayList<String> tmpArray = new ArrayList<String>();
-        for (String strPackage : packageList.split(",")) {
-            if (!strPackage.isEmpty()) {
-                if (!tmpArray.contains(strPackage)) {
-                    tmpArray.add(strPackage);
-                    selectedPackages += strPackage + ",";
-                }
-            }
-        }
-        tmpArray.clear();
-        tmpArray = null;
-
-        // remove extra , if there are any selected packages
-        if (!selectedPackages.isEmpty()) {
-            selectedPackages = selectedPackages.substring(0, selectedPackages.length() - 1);
-        }
         if (Constants.IS_LOGGABLE) {
-            if (mode == Mode.OFF) {
+            switch (mode) {
+            case OFF:
                 Log.i(Constants.LOG_TAG, "Mode is: off");
-            } else if (mode == Mode.INCLUDE) {
+                break;
+            case INCLUDE:
                 Log.i(Constants.LOG_TAG, "Mode is: include only");
-            } else if (mode == Mode.EXCLUDE) {
+                break;
+            case EXCLUDE:
                 Log.i(Constants.LOG_TAG, "Mode is: exclude");
-            } else {
+                break;
+            default:
                 Log.i(Constants.LOG_TAG, "Mode is: unknown (" + mode + ")");
             }
             if (notificationsOnly) {
@@ -79,15 +68,25 @@ public class FireReceiver extends BroadcastReceiver {
             } else {
                 Log.i(Constants.LOG_TAG, "Sending all types of notifications, such as Toasts");
             }
-            Log.i(Constants.LOG_TAG, "Package list is: " + selectedPackages);
+            Log.i(Constants.LOG_TAG, "Package list is: " + packageList);
         }
 
-        Editor editor = context.getSharedPreferences(Constants.LOG_TAG,
-                Context.MODE_MULTI_PROCESS | Context.MODE_PRIVATE).edit();
+        Editor editor = context.getSharedPreferences(Constants.LOG_TAG, Context.MODE_PRIVATE).edit();
         editor.putInt(Constants.PREFERENCE_MODE, mode.ordinal());
         editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, notificationsOnly);
-        editor.putString(Constants.PREFERENCE_PACKAGE_LIST, selectedPackages);
+        editor.putBoolean(Constants.PREFERENCE_TASKER_SET, true);
+        editor.putString(Constants.PREFERENCE_PACKAGE_LIST, packageList);
         editor.commit();
+        File watchFile = new File(context.getFilesDir() + "PrefsChanged.none");
+        if (!watchFile.exists()) {
+            try {
+                watchFile.createNewFile();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        watchFile.setLastModified(System.currentTimeMillis());
     }
 
     public void sendAlertToPebble(final Context context, int bundleVersionCode, String title, String body) {

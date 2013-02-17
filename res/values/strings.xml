@@ -10,5 +10,14 @@
     <string name="application_icon" tools:ignore="MissingTranslation">Application Icon</string>
     <string name="accessability_error" tools:ignore="MissingTranslation">This application will not work by itself until you have enabled Pebble Notifier in the Accessibility settings</string>
     <string name="show_only_notifications" tools:ignore="MissingTranslation">Send only notifications</string>
+    <string name="tasker_notice" tools:ignore="MissingTranslation">Please note that the last settings for this application was set by Tasker. Your Tasker settings will overwrite everything you set here.</string>
+    <string name="loading_applications" tools:ignore="MissingTranslation">Loading Applications</string>
+    <string-array name="mode_choices" tools:ignore="MissingTranslation">
+        <item >Off</item>
+        <item >Exclude selected apps</item>
+        <item >Include ONLY selected apps</item>
+    </string-array>
+        
+        
 
 </resources>

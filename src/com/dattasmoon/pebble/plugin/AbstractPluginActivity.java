@@ -26,8 +26,16 @@ public abstract class AbstractPluginActivity extends Activity {
 
         localeBundle = getIntent().getBundleExtra(com.twofortyfouram.locale.Intent.EXTRA_BUNDLE);
 
-        if (null == savedInstanceState && null != localeBundle) {
+        if (getIntent().getAction() == "com.twofortyfouram.locale.intent.action.EDIT_SETTING") {
             mode = Mode.LOCALE;
+            if (Constants.IS_LOGGABLE) {
+                Log.i(Constants.LOG_TAG, "Activity mode is set to locale");
+            }
+        } else {
+            mode = Mode.STANDARD;
+            if (Constants.IS_LOGGABLE) {
+                Log.i(Constants.LOG_TAG, "Activity mode is set to standard");
+            }
         }
 
         if (mode == Mode.LOCALE) {

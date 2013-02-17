@@ -42,6 +42,7 @@ public class EditActivity extends AbstractPluginActivity {
             // set the version, title and body
             resultBundle.putInt(Constants.BUNDLE_EXTRA_INT_VERSION_CODE,
                     Constants.getVersionCode(getApplicationContext()));
+            resultBundle.putInt(Constants.BUNDLE_EXTRA_INT_TYPE, Constants.Type.NOTIFICATION.ordinal());
             resultBundle.putString(Constants.BUNDLE_EXTRA_STRING_TITLE, title);
             resultBundle.putString(Constants.BUNDLE_EXTRA_STRING_BODY, body);
 

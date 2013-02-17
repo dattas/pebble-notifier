@@ -29,6 +29,7 @@ public final class Constants {
     public static final String  PREFERENCE_NOTIFICATIONS_ONLY        = LOG_TAG + ".notificationsOnly";
     public static final String  PREFERENCE_PACKAGE_LIST              = LOG_TAG + ".packageList";
     public static final String  PREFERENCE_MIN_NOTIFICATION_WAIT     = LOG_TAG + ".minNotificationWait";
+    public static final String  PREFERENCE_TASKER_SET                = LOG_TAG + ".taskerSet";
 
     // Intents
     public static final String  INTENT_SEND_PEBBLE_NOTIFICATION      = "com.getpebble.action.SEND_NOTIFICATION";

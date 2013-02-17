@@ -1,5 +1,7 @@
 package com.dattasmoon.pebble.plugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,19 +26,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
-public class EditNotificationActivity extends AbstractPluginActivity {
+public class EditNotificationActivity extends AbstractPluginActivity implements OnItemSelectedListener {
 
     ListView          lvPackages;
-    ToggleButton      tbMode;
+    TextView          tvTaskerNotice;
+    Constants.Mode    mMode;
+    Spinner           spMode;
     CheckBox          chkNotificationsOnly;
     SharedPreferences sharedPreferences;
 
@@ -46,17 +52,40 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         setContentView(R.layout.activity_edit_notification);
 
         lvPackages = (ListView) findViewById(R.id.listPackages);
-        tbMode = (ToggleButton) findViewById(R.id.tbMode);
+        spMode = (Spinner) findViewById(R.id.spMode);
+        tvTaskerNotice = (TextView) findViewById(R.id.tvTaskerNotice);
         chkNotificationsOnly = (CheckBox) findViewById(R.id.chkNotificationsOnly);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.mode_choices,
+                android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spMode.setAdapter(adapter);
+        spMode.setOnItemSelectedListener(this);
+
         if (mode == Mode.STANDARD) {
             sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
-            tbMode.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_EXCLUDE_MODE, false));
-            chkNotificationsOnly.setChecked(sharedPreferences
-                    .getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false));
+            if (sharedPreferences.getBoolean(Constants.PREFERENCE_TASKER_SET, false)) {
+                tvTaskerNotice.setVisibility(View.VISIBLE);
+            }
+            spMode.setSelection(sharedPreferences.getInt(Constants.PREFERENCE_MODE, Constants.Mode.OFF.ordinal()));
+
+            // legacy preference handler
+            if (sharedPreferences.contains(Constants.PREFERENCE_EXCLUDE_MODE)) {
+                if (sharedPreferences.getBoolean(Constants.PREFERENCE_EXCLUDE_MODE, false)) {
+                    spMode.setSelection(Constants.Mode.INCLUDE.ordinal());
+                } else {
+                    spMode.setSelection(Constants.Mode.EXCLUDE.ordinal());
+                }
+            } else {
+                chkNotificationsOnly.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY,
+                        false));
+            }
         } else if (mode == Mode.LOCALE) {
-            // tbMode.setChecked(localeBundle.ge)
-            chkNotificationsOnly.setChecked(localeBundle.getBoolean(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY,
-                    false));
+            if (localeBundle != null) {
+                spMode.setSelection(localeBundle.getInt(Constants.BUNDLE_EXTRA_INT_MODE, Constants.Mode.OFF.ordinal()));
+                chkNotificationsOnly.setChecked(localeBundle.getBoolean(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY,
+                        false));
+            }
         }
 
         checkAccessibilityService();
@@ -121,7 +150,7 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         }
         if (!accessibilityFound) {
             findViewById(R.id.tvAccessibilityError).setVisibility(View.VISIBLE);
-            findViewById(R.id.tbMode).setVisibility(View.GONE);
+            findViewById(R.id.spMode).setVisibility(View.GONE);
             findViewById(R.id.tvMode).setVisibility(View.GONE);
             findViewById(R.id.chkNotificationsOnly).setVisibility(View.GONE);
             findViewById(R.id.listPackages).setEnabled(false);
@@ -130,8 +159,9 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             }
         } else {
             findViewById(R.id.tvAccessibilityError).setVisibility(View.GONE);
-            findViewById(R.id.tbMode).setVisibility(View.VISIBLE);
+            findViewById(R.id.spMode).setVisibility(View.VISIBLE);
             findViewById(R.id.tvMode).setVisibility(View.VISIBLE);
+            findViewById(R.id.chkNotificationsOnly).setVisibility(View.VISIBLE);
             if (Constants.IS_LOGGABLE) {
                 Log.i(Constants.LOG_TAG, "The accessibility service is on!");
             }
@@ -145,43 +175,107 @@ public class EditNotificationActivity extends AbstractPluginActivity {
     }
 
     public void save() {
-        if (mode == Mode.STANDARD) {
-            String selectedPackages = "";
-            ArrayList<String> tmpArray = new ArrayList<String>();
-            for (String strPackage : ((packageAdapter) lvPackages.getAdapter()).selected) {
-                if (!strPackage.isEmpty()) {
-                    if (!tmpArray.contains(strPackage)) {
-                        tmpArray.add(strPackage);
-                        selectedPackages += strPackage + ",";
-                    }
+        String selectedPackages = "";
+        ArrayList<String> tmpArray = new ArrayList<String>();
+        for (String strPackage : ((packageAdapter) lvPackages.getAdapter()).selected) {
+            if (!strPackage.isEmpty()) {
+                if (!tmpArray.contains(strPackage)) {
+                    tmpArray.add(strPackage);
+                    selectedPackages += strPackage + ",";
                 }
             }
-            tmpArray.clear();
-            tmpArray = null;
-            if (!selectedPackages.isEmpty()) {
-                selectedPackages = selectedPackages.substring(0, selectedPackages.length() - 1);
-            }
-            if (Constants.IS_LOGGABLE) {
-                if (tbMode.isChecked()) {
-                    Log.i(Constants.LOG_TAG, "Mode is is: include only");
-                } else {
-                    Log.i(Constants.LOG_TAG, "Mode is is: exclude");
-                }
-                if (chkNotificationsOnly.isChecked()) {
-                    Log.i(Constants.LOG_TAG, "Only going to send notifications");
-                } else {
-                    Log.i(Constants.LOG_TAG, "Sending all types of notifications, such as Toasts");
-                }
-                Log.i(Constants.LOG_TAG, "Package list is: " + selectedPackages);
+        }
+        tmpArray.clear();
+        tmpArray = null;
+        if (!selectedPackages.isEmpty()) {
+            selectedPackages = selectedPackages.substring(0, selectedPackages.length() - 1);
+        }
+        if (Constants.IS_LOGGABLE) {
+            switch (mMode) {
+            case OFF:
+                Log.i(Constants.LOG_TAG, "Mode is: off");
+                break;
+            case EXCLUDE:
+                Log.i(Constants.LOG_TAG, "Mode is: exclude");
+                break;
+            case INCLUDE:
+                Log.i(Constants.LOG_TAG, "Mode is: include");
+                break;
             }
 
+            if (chkNotificationsOnly.isChecked()) {
+                Log.i(Constants.LOG_TAG, "Only going to send notifications");
+            } else {
+                Log.i(Constants.LOG_TAG, "Sending all types of notifications, such as Toasts");
+            }
+            Log.i(Constants.LOG_TAG, "Package list is: " + selectedPackages);
+        }
+
+        if (mode == Mode.STANDARD) {
+
             Editor editor = sharedPreferences.edit();
-            editor.putBoolean(Constants.PREFERENCE_EXCLUDE_MODE, tbMode.isChecked());
+            editor.putInt(Constants.PREFERENCE_MODE, mMode.ordinal());
             editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, chkNotificationsOnly.isChecked());
             editor.putString(Constants.PREFERENCE_PACKAGE_LIST, selectedPackages);
+
+            // we saved via the application, reset the variable if it exists
+            editor.remove(Constants.PREFERENCE_TASKER_SET);
+
+            // clear out legacy preference, if it exists
+            editor.remove(Constants.PREFERENCE_EXCLUDE_MODE);
+
+            // save!
             editor.commit();
+
+            // notify service via file that it needs to reload the preferences
+            File watchFile = new File(getFilesDir() + "PrefsChanged.none");
+            if (!watchFile.exists()) {
+                try {
+                    watchFile.createNewFile();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            watchFile.setLastModified(System.currentTimeMillis());
         } else if (mode == Mode.LOCALE) {
-            // TODO: fill
+            if (!isCanceled()) {
+                final Intent resultIntent = new Intent();
+                final Bundle resultBundle = new Bundle();
+
+                // set the version, title and body
+                resultBundle.putInt(Constants.BUNDLE_EXTRA_INT_VERSION_CODE,
+                        Constants.getVersionCode(getApplicationContext()));
+                resultBundle.putInt(Constants.BUNDLE_EXTRA_INT_TYPE, Constants.Type.SETTINGS.ordinal());
+                resultBundle.putInt(Constants.BUNDLE_EXTRA_INT_MODE, mMode.ordinal());
+                resultBundle.putBoolean(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY,
+                        chkNotificationsOnly.isChecked());
+                resultBundle.putString(Constants.BUNDLE_EXTRA_STRING_PACKAGE_LIST, selectedPackages);
+                String blurb = "";
+                switch (mMode) {
+                case OFF:
+                    blurb = "Off";
+                    break;
+                case INCLUDE:
+                    if (chkNotificationsOnly.isChecked()) {
+                        blurb = "Mode Include, only notifications";
+                    } else {
+                        blurb = "Mode Include";
+                    }
+                    break;
+                case EXCLUDE:
+                    if (chkNotificationsOnly.isChecked()) {
+                        blurb = "Mode exclude, only notifications";
+                    } else {
+                        blurb = "Mode Exclude";
+                    }
+                }
+                Log.i(Constants.LOG_TAG, resultBundle.toString());
+
+                resultIntent.putExtra(com.twofortyfouram.locale.Intent.EXTRA_BUNDLE, resultBundle);
+                resultIntent.putExtra(com.twofortyfouram.locale.Intent.EXTRA_STRING_BLURB, blurb);
+                setResult(RESULT_OK, resultIntent);
+            }
         }
 
     }
@@ -197,6 +291,19 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         super.finish();
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        mMode = Constants.Mode.values()[pos];
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        mMode = Constants.Mode.OFF;
+        if (Constants.IS_LOGGABLE) {
+            Log.i(Constants.LOG_TAG, "Mode is: off");
+        }
+    }
+
     private class LoadAppsTask extends AsyncTask<Void, Integer, List<PackageInfo>> {
         public ArrayList<String> selected;
 
@@ -208,10 +315,14 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             selected = new ArrayList<String>();
             String packageList;
             if (mode == Mode.LOCALE) {
-                packageList = localeBundle.getString(Constants.BUNDLE_EXTRA_STRING_PACKAGE_LIST);
-                if (packageList == null) {
-                    // this can be null if it doesn't currently exist in the
-                    // locale bundle, handle gracefully
+                if (localeBundle != null) {
+                    packageList = localeBundle.getString(Constants.BUNDLE_EXTRA_STRING_PACKAGE_LIST);
+                    if (packageList == null) {
+                        // this can be null if it doesn't currently exist in the
+                        // locale bundle, handle gracefully
+                        packageList = "";
+                    }
+                } else {
                     packageList = "";
                 }
             } else {
@@ -235,6 +346,7 @@ public class EditNotificationActivity extends AbstractPluginActivity {
 
             lvPackages.setAdapter(new packageAdapter(EditNotificationActivity.this, pkgAppsList
                     .toArray(new PackageInfo[pkgAppsList.size()]), selected));
+            findViewById(android.R.id.empty).setVisibility(View.GONE);
 
         }
     }
