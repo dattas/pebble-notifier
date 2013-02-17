@@ -1,3 +1,12 @@
+/* 
+Copyright (c) 2013 Dattas Moonchaser
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package com.dattasmoon.pebble.plugin;
 
 import java.io.File;
@@ -364,26 +373,36 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.list_application_item, parent, false);
-            TextView textView = (TextView) rowView.findViewById(R.id.tvPackage);
-            ImageView imageView = (ImageView) rowView.findViewById(R.id.ivIcon);
-            CheckBox chkEnabled = (CheckBox) rowView.findViewById(R.id.chkEnabled);
-            chkEnabled.setOnCheckedChangeListener(this);
-            rowView.setOnClickListener(this);
+        public View getView(int position, View rowView, ViewGroup parent) {
+            ListViewHolder viewHolder = null;
+            if (rowView == null) {
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                rowView = inflater.inflate(R.layout.list_application_item, parent, false);
 
+                viewHolder = new ListViewHolder();
+
+                viewHolder.textView = (TextView) rowView.findViewById(R.id.tvPackage);
+                viewHolder.imageView = (ImageView) rowView.findViewById(R.id.ivIcon);
+                viewHolder.chkEnabled = (CheckBox) rowView.findViewById(R.id.chkEnabled);
+                viewHolder.chkEnabled.setOnCheckedChangeListener(this);
+                rowView.setOnClickListener(this);
+                rowView.setTag(viewHolder);
+            } else {
+                viewHolder = (ListViewHolder) rowView.getTag();
+            }
             PackageInfo info = packages[position];
-            textView.setText(info.applicationInfo.loadLabel(getPackageManager()).toString());
-            imageView.setImageDrawable(info.applicationInfo.loadIcon(getPackageManager()));
-            chkEnabled.setChecked(false);
-            chkEnabled.setTag(info.packageName);
+
+            viewHolder.textView.setText(info.applicationInfo.loadLabel(getPackageManager()).toString());
+            viewHolder.imageView.setImageDrawable(info.applicationInfo.loadIcon(getPackageManager()));
+            viewHolder.chkEnabled.setChecked(false);
+            viewHolder.chkEnabled.setTag(info.packageName);
             for (String strPackage : selected) {
                 if (info.packageName.equalsIgnoreCase(strPackage)) {
-                    chkEnabled.setChecked(true);
+                    viewHolder.chkEnabled.setChecked(true);
                     break;
                 }
             }
+
             return rowView;
         }
 
@@ -410,6 +429,12 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
             ((CheckBox) rowView.findViewById(R.id.chkEnabled)).performClick();
 
         }
+    }
+
+    public static class ListViewHolder {
+        public TextView  textView;
+        public CheckBox  chkEnabled;
+        public ImageView imageView;
     }
 
     public class PackageComparator implements Comparator<PackageInfo> {
