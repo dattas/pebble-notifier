@@ -42,15 +42,25 @@ import android.widget.TextView;
 import com.dattasmoon.pebble.plugin.Constants.Mode;
 
 public class NotificationService extends AccessibilityService {
-    private Mode              mode                   = Mode.EXCLUDE;
-    private boolean           notifications_only     = false;
-    private long              min_notification_wait  = 60 * 1000;
-    private long              notification_last_sent = 0;
-    private String[]          packages               = null;
-    private Handler           mHandler;
-    private File              watchFile;
-    private Long              lastChange;
-    Queue<AccessibilityEvent> queue;
+    private class queueItem {
+        public String title;
+        public String body;
+
+        public queueItem(String title, String body) {
+            this.title = title;
+            this.body = body;
+        }
+    }
+
+    private Mode     mode                   = Mode.EXCLUDE;
+    private boolean  notifications_only     = false;
+    private long     min_notification_wait  = 60 * 1000;
+    private long     notification_last_sent = 0;
+    private String[] packages               = null;
+    private Handler  mHandler;
+    private File     watchFile;
+    private Long     lastChange;
+    Queue<queueItem> queue;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -73,46 +83,18 @@ public class NotificationService extends AccessibilityService {
         // handle if they don't want toasts first, that way we don't put things
         // in queue that we won't actually use
         if (notifications_only) {
-            Parcelable parcelable = event.getParcelableData();
-            if (!(parcelable instanceof Notification)) {
-                if (Constants.IS_LOGGABLE) {
-                    Log.i(Constants.LOG_TAG,
-                            "Event is not a notification and notifications only is enabled. Clearing event and checking queue");
+            if (event != null) {
+                Parcelable parcelable = event.getParcelableData();
+                if (!(parcelable instanceof Notification)) {
+                    if (Constants.IS_LOGGABLE) {
+                        Log.i(Constants.LOG_TAG,
+                                "Event is not a notification and notifications only is enabled. Clearing event and checking queue");
+                    }
+                    event = null;
                 }
-                event = null;
             }
         }
 
-        // queue functionality
-        // if queue is not empty, queue this message up and see if we can send
-        // an older one now
-        if (!queue.isEmpty()) {
-            if (event != null) {
-                queue.add(event);
-            }
-            if (System.currentTimeMillis() - notification_last_sent < min_notification_wait) {
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        onAccessibilityEvent(null);
-                    }
-                }, min_notification_wait);
-                return;
-            }
-            event = queue.remove();
-        }
-        // if we've sent one too recently, queue it up and ask to be called
-        // later
-        if (System.currentTimeMillis() - notification_last_sent < min_notification_wait) {
-            queue.add(event);
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    onAccessibilityEvent(null);
-                }
-            }, min_notification_wait);
-            return;
-        }
         if (event == null) {
             if (Constants.IS_LOGGABLE) {
                 Log.i(Constants.LOG_TAG,
@@ -120,9 +102,11 @@ public class NotificationService extends AccessibilityService {
             }
             return;
         }
+        if (Constants.IS_LOGGABLE) {
+            Log.i(Constants.LOG_TAG, "Event: " + event.toString());
+        }
 
         // main logic
-        notification_last_sent = System.currentTimeMillis();
         PackageManager pm = getPackageManager();
 
         String eventPackageName = event.getPackageName().toString();
@@ -167,6 +151,7 @@ public class NotificationService extends AccessibilityService {
         }
 
         String notificationText = event.getText().toString();
+        String title = "";
         // strip the first and last characters which are [ and ]
         notificationText = notificationText.substring(1, notificationText.length() - 1);
         Parcelable parcelable = event.getParcelableData();
@@ -179,13 +164,87 @@ public class NotificationService extends AccessibilityService {
 
         }
 
+        try {
+            title = pm.getApplicationLabel(pm.getApplicationInfo(eventPackageName, 0)).toString();
+        } catch (NameNotFoundException e) {
+            title = eventPackageName;
+        }
+
+        // queue functionality
+        // if queue is not empty, queue this message up and see if we can send
+        // an older one now
+        if (!queue.isEmpty()) {
+            if (event != null) {
+                if (Constants.IS_LOGGABLE) {
+                    Log.i(Constants.LOG_TAG, "Adding new event to queue");
+                }
+                queue.add(new queueItem(title, notificationText));
+            }
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    runQueue();
+                }
+            }, min_notification_wait * queue.size());
+            if (System.currentTimeMillis() - notification_last_sent < min_notification_wait) {
+                return;
+            }
+            queueItem item = queue.remove();
+
+            if (Constants.IS_LOGGABLE) {
+                Log.i(Constants.LOG_TAG, "Pulled an event from the queue");
+            }
+            sendToPebble(item.title, item.body);
+            return;
+        }
+        // if we've sent one too recently, queue it up and ask to be called
+        // later
+        if (System.currentTimeMillis() - notification_last_sent < min_notification_wait) {
+            queue.add(new queueItem(title, notificationText));
+
+            if (Constants.IS_LOGGABLE) {
+                Log.i(Constants.LOG_TAG, "Adding new event to queue, returning");
+            }
+            runQueue();
+            return;
+        }
+
+        // Send the alert to Pebble
+
+        sendToPebble(title, notificationText);
+
+        if (Constants.IS_LOGGABLE) {
+            Log.i(Constants.LOG_TAG, event.toString());
+            Log.i(Constants.LOG_TAG, event.getPackageName().toString());
+        }
+    }
+
+    private void runQueue() {
+        if (!queue.isEmpty()) {
+            if (System.currentTimeMillis() - notification_last_sent < min_notification_wait - 500) {
+                queueItem item = queue.remove();
+                sendToPebble(item.title, item.body);
+
+            }
+            if (!queue.isEmpty()) {
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        runQueue();
+                    }
+                }, min_notification_wait);
+            }
+
+        }
+
+    }
+
+    private void sendToPebble(String title, String notificationText) {
         // Create json object to be sent to Pebble
         final Map<String, Object> data = new HashMap<String, Object>();
-        try {
-            data.put("title", pm.getApplicationLabel(pm.getApplicationInfo(eventPackageName, 0)));
-        } catch (NameNotFoundException e) {
-            data.put("title", eventPackageName);
-        }
+
+        data.put("title", title);
+
         data.put("body", notificationText);
         final JSONObject jsonData = new JSONObject(data);
         final String notificationData = new JSONArray().put(jsonData).toString();
@@ -198,12 +257,11 @@ public class NotificationService extends AccessibilityService {
 
         // Send the alert to Pebble
         if (Constants.IS_LOGGABLE) {
-            Log.i(Constants.LOG_TAG, event.toString());
-            Log.i(Constants.LOG_TAG, event.getPackageName().toString());
-            Log.i(Constants.LOG_TAG, notificationText);
             Log.d(Constants.LOG_TAG, "About to send a modal alert to Pebble: " + notificationData);
+            Log.d(Constants.LOG_TAG, "Queue size is: " + String.valueOf(queue.size()));
         }
         sendBroadcast(i);
+        notification_last_sent = System.currentTimeMillis();
 
     }
 
@@ -235,7 +293,7 @@ public class NotificationService extends AccessibilityService {
         setServiceInfo(info);
 
         mHandler = new Handler();
-        queue = new LinkedList<AccessibilityEvent>();
+        queue = new LinkedList<queueItem>();
     }
 
     private void loadPrefs() {
@@ -284,7 +342,12 @@ public class NotificationService extends AccessibilityService {
         if (Constants.IS_LOGGABLE) {
             Log.i(Constants.LOG_TAG, "I am running extra big data");
         }
-        RemoteViews views = notification.bigContentView;
+        RemoteViews views = null;
+        try {
+            views = notification.bigContentView;
+        } catch (NoSuchFieldError e) {
+            return getExtraData(notification, existing_text);
+        }
         if (views == null) {
             if (Constants.IS_LOGGABLE) {
                 Log.i(Constants.LOG_TAG, "bigContentView was empty, running normal");

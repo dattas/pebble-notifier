@@ -186,6 +186,9 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
     public void save() {
         String selectedPackages = "";
         ArrayList<String> tmpArray = new ArrayList<String>();
+        if (lvPackages == null || lvPackages.getAdapter() == null) {
+            return;
+        }
         for (String strPackage : ((packageAdapter) lvPackages.getAdapter()).selected) {
             if (!strPackage.isEmpty()) {
                 if (!tmpArray.contains(strPackage)) {
