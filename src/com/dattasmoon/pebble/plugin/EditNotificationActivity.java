@@ -387,33 +387,41 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
                 viewHolder.textView = (TextView) rowView.findViewById(R.id.tvPackage);
                 viewHolder.imageView = (ImageView) rowView.findViewById(R.id.ivIcon);
                 viewHolder.chkEnabled = (CheckBox) rowView.findViewById(R.id.chkEnabled);
-                viewHolder.chkEnabled.setOnCheckedChangeListener(this);
+
                 rowView.setOnClickListener(this);
                 rowView.setTag(viewHolder);
             } else {
                 viewHolder = (ListViewHolder) rowView.getTag();
+                // viewHolder.chkEnabled.rem
             }
             PackageInfo info = packages[position];
 
             viewHolder.textView.setText(info.applicationInfo.loadLabel(getPackageManager()).toString());
             viewHolder.imageView.setImageDrawable(info.applicationInfo.loadIcon(getPackageManager()));
-            viewHolder.chkEnabled.setChecked(false);
             viewHolder.chkEnabled.setTag(info.packageName);
+            viewHolder.chkEnabled.setChecked(false);
+
             for (String strPackage : selected) {
                 if (info.packageName.equalsIgnoreCase(strPackage)) {
                     viewHolder.chkEnabled.setChecked(true);
                     break;
                 }
             }
+            viewHolder.chkEnabled.setOnCheckedChangeListener(this);
 
             return rowView;
         }
 
         @Override
         public void onCheckedChanged(CompoundButton chkEnabled, boolean newState) {
+
             String strPackage = (String) chkEnabled.getTag();
+
             if (strPackage.isEmpty()) {
                 return;
+            }
+            if (Constants.IS_LOGGABLE) {
+                Log.i(Constants.LOG_TAG, "Check changed on " + strPackage);
             }
             if (newState) {
                 if (!selected.contains(strPackage)) {
@@ -423,6 +431,9 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
                 while (selected.contains(strPackage)) {
                     selected.remove(strPackage);
                 }
+            }
+            if (Constants.IS_LOGGABLE) {
+                Log.i(Constants.LOG_TAG, "Selected count is: " + String.valueOf(selected.size()));
             }
 
         }
