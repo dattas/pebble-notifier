@@ -48,15 +48,19 @@ public class FireReceiver extends BroadcastReceiver {
                 Mode mode = Mode.values()[intent.getIntExtra(Constants.BUNDLE_EXTRA_INT_MODE, Mode.OFF.ordinal())];
                 boolean notificationsOnly = intent.getBooleanExtra(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY,
                         false);
+                boolean detailedNotifications = intent.getBooleanExtra(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATION_EXTRAS,
+                        false);
                 String packageList = intent.getStringExtra(Constants.BUNDLE_EXTRA_STRING_PACKAGE_LIST);
-                setNotificationSettings(context, bundleVersionCode, mode, notificationsOnly, packageList);
+
+                setNotificationSettings(context, bundleVersionCode, mode, notificationsOnly, detailedNotifications,
+                        packageList);
                 break;
             }
         }
     }
 
     public void setNotificationSettings(final Context context, int bundleVersionCode, Mode mode,
-            boolean notificationsOnly, String packageList) {
+            boolean notificationsOnly, boolean detailedNotifications, String packageList) {
 
         if (Constants.IS_LOGGABLE) {
             switch (mode) {
@@ -77,15 +81,30 @@ public class FireReceiver extends BroadcastReceiver {
             } else {
                 Log.i(Constants.LOG_TAG, "Sending all types of notifications, such as Toasts");
             }
+            if (detailedNotifications) {
+                Log.i(Constants.LOG_TAG, "Going to fetch detailed notifications");
+            } else {
+                Log.i(Constants.LOG_TAG, "Not going to fetch detailed notifications");
+            }
             Log.i(Constants.LOG_TAG, "Package list is: " + packageList);
         }
 
-        Editor editor = context.getSharedPreferences(Constants.LOG_TAG, Context.MODE_PRIVATE).edit();
+        Editor editor = context.getSharedPreferences(Constants.LOG_TAG,
+                Context.MODE_MULTI_PROCESS | Context.MODE_PRIVATE).edit();
         editor.putInt(Constants.PREFERENCE_MODE, mode.ordinal());
         editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, notificationsOnly);
+        editor.putBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, detailedNotifications);
         editor.putBoolean(Constants.PREFERENCE_TASKER_SET, true);
         editor.putString(Constants.PREFERENCE_PACKAGE_LIST, packageList);
-        editor.commit();
+        if (!editor.commit()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            editor.commit();
+        }
         File watchFile = new File(context.getFilesDir() + "PrefsChanged.none");
         if (!watchFile.exists()) {
             try {

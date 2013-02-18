@@ -54,7 +54,8 @@ public class NotificationService extends AccessibilityService {
 
     private Mode     mode                   = Mode.EXCLUDE;
     private boolean  notifications_only     = false;
-    private long     min_notification_wait  = 60 * 1000;
+    private boolean  notification_extras    = false;
+    private long     min_notification_wait  = 0 * 1000;
     private long     notification_last_sent = 0;
     private String[] packages               = null;
     private Handler  mHandler;
@@ -80,25 +81,23 @@ public class NotificationService extends AccessibilityService {
             return;
         }
 
-        // handle if they don't want toasts first, that way we don't put things
-        // in queue that we won't actually use
+        // handle if they don't want toasts next
         if (notifications_only) {
             if (event != null) {
                 Parcelable parcelable = event.getParcelableData();
                 if (!(parcelable instanceof Notification)) {
                     if (Constants.IS_LOGGABLE) {
                         Log.i(Constants.LOG_TAG,
-                                "Event is not a notification and notifications only is enabled. Clearing event and checking queue");
+                                "Event is not a notification and notifications only is enabled. Returning.");
                     }
-                    event = null;
+                    return;
                 }
             }
         }
 
         if (event == null) {
             if (Constants.IS_LOGGABLE) {
-                Log.i(Constants.LOG_TAG,
-                        "Event is null, this means the queue was empty and we removed the event that called us. Returning.");
+                Log.i(Constants.LOG_TAG, "Event is null. Returning.");
             }
             return;
         }
@@ -111,7 +110,11 @@ public class NotificationService extends AccessibilityService {
 
         String eventPackageName = event.getPackageName().toString();
         if (Constants.IS_LOGGABLE) {
-            Log.i(Constants.LOG_TAG, "Service package list is: " + packages.toString());
+            Log.i(Constants.LOG_TAG, "Service package list is: ");
+            for (String strPackage : packages) {
+                Log.i(Constants.LOG_TAG, strPackage);
+            }
+            Log.i(Constants.LOG_TAG, "End Service package list");
         }
 
         switch (mode) {
@@ -150,63 +153,32 @@ public class NotificationService extends AccessibilityService {
             break;
         }
 
-        String notificationText = event.getText().toString();
+        // get the title
         String title = "";
-        // strip the first and last characters which are [ and ]
-        notificationText = notificationText.substring(1, notificationText.length() - 1);
-        Parcelable parcelable = event.getParcelableData();
-        if (parcelable instanceof Notification) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                notificationText += "\n" + getExtraBigData((Notification) parcelable, notificationText.trim());
-            } else {
-                notificationText += "\n" + getExtraData((Notification) parcelable, notificationText.trim());
-            }
-
-        }
-
         try {
             title = pm.getApplicationLabel(pm.getApplicationInfo(eventPackageName, 0)).toString();
         } catch (NameNotFoundException e) {
             title = eventPackageName;
         }
 
-        // queue functionality
-        // if queue is not empty, queue this message up and see if we can send
-        // an older one now
-        if (!queue.isEmpty()) {
-            if (event != null) {
-                if (Constants.IS_LOGGABLE) {
-                    Log.i(Constants.LOG_TAG, "Adding new event to queue");
-                }
-                queue.add(new queueItem(title, notificationText));
-            }
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    runQueue();
-                }
-            }, min_notification_wait * queue.size());
-            if (System.currentTimeMillis() - notification_last_sent < min_notification_wait) {
-                return;
-            }
-            queueItem item = queue.remove();
+        // get the notification text
+        String notificationText = event.getText().toString();
+        // strip the first and last characters which are [ and ]
+        notificationText = notificationText.substring(1, notificationText.length() - 1);
 
+        if (notification_extras) {
             if (Constants.IS_LOGGABLE) {
-                Log.i(Constants.LOG_TAG, "Pulled an event from the queue");
+                Log.i(Constants.LOG_TAG, "Fetching extras from notification");
             }
-            sendToPebble(item.title, item.body);
-            return;
-        }
-        // if we've sent one too recently, queue it up and ask to be called
-        // later
-        if (System.currentTimeMillis() - notification_last_sent < min_notification_wait) {
-            queue.add(new queueItem(title, notificationText));
+            Parcelable parcelable = event.getParcelableData();
+            if (parcelable instanceof Notification) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    notificationText += "\n" + getExtraBigData((Notification) parcelable, notificationText.trim());
+                } else {
+                    notificationText += "\n" + getExtraData((Notification) parcelable, notificationText.trim());
+                }
 
-            if (Constants.IS_LOGGABLE) {
-                Log.i(Constants.LOG_TAG, "Adding new event to queue, returning");
             }
-            runQueue();
-            return;
         }
 
         // Send the alert to Pebble
@@ -219,27 +191,15 @@ public class NotificationService extends AccessibilityService {
         }
     }
 
-    private void runQueue() {
-        if (!queue.isEmpty()) {
-            if (System.currentTimeMillis() - notification_last_sent < min_notification_wait - 500) {
-                queueItem item = queue.remove();
-                sendToPebble(item.title, item.body);
-
-            }
-            if (!queue.isEmpty()) {
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        runQueue();
-                    }
-                }, min_notification_wait);
-            }
-
-        }
-
-    }
-
     private void sendToPebble(String title, String notificationText) {
+        title = title.trim();
+        notificationText = notificationText.trim();
+        if (title.trim().isEmpty() || notificationText.isEmpty()) {
+            if (Constants.IS_LOGGABLE) {
+                Log.i(Constants.LOG_TAG, "Detected empty title or notification text, skipping");
+            }
+            return;
+        }
         // Create json object to be sent to Pebble
         final Map<String, Object> data = new HashMap<String, Object>();
 
@@ -258,7 +218,6 @@ public class NotificationService extends AccessibilityService {
         // Send the alert to Pebble
         if (Constants.IS_LOGGABLE) {
             Log.d(Constants.LOG_TAG, "About to send a modal alert to Pebble: " + notificationData);
-            Log.d(Constants.LOG_TAG, "Queue size is: " + String.valueOf(queue.size()));
         }
         sendBroadcast(i);
         notification_last_sent = System.currentTimeMillis();
@@ -300,7 +259,7 @@ public class NotificationService extends AccessibilityService {
         if (Constants.IS_LOGGABLE) {
             Log.i(Constants.LOG_TAG, "I am loading preferences");
         }
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
 
         int temp = sharedPreferences.getInt(Constants.PREFERENCE_MODE, -1);
         if (temp == -1) {
@@ -313,9 +272,15 @@ public class NotificationService extends AccessibilityService {
             mode = Mode.values()[temp];
         }
 
+        if (Constants.IS_LOGGABLE) {
+            Log.i(Constants.LOG_TAG,
+                    "Service package list is: " + sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, ""));
+        }
+
         packages = sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, "").split(",");
         notifications_only = sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false);
         min_notification_wait = sharedPreferences.getInt(Constants.PREFERENCE_MIN_NOTIFICATION_WAIT, 0) * 1000;
+        notification_extras = sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, false);
         lastChange = watchFile.lastModified();
     }
 
@@ -332,9 +297,13 @@ public class NotificationService extends AccessibilityService {
         }
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ViewGroup localView = (ViewGroup) inflater.inflate(views.getLayoutId(), null);
-        views.reapply(getApplicationContext(), localView);
-        return dumpViewGroup(0, localView, existing_text);
+        try {
+            ViewGroup localView = (ViewGroup) inflater.inflate(views.getLayoutId(), null);
+            views.reapply(getApplicationContext(), localView);
+            return dumpViewGroup(0, localView, existing_text);
+        } catch (android.content.res.Resources.NotFoundException e) {
+            return "";
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -355,9 +324,13 @@ public class NotificationService extends AccessibilityService {
             return getExtraData(notification, existing_text);
         }
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ViewGroup localView = (ViewGroup) inflater.inflate(views.getLayoutId(), null);
-        views.reapply(getApplicationContext(), localView);
-        return dumpViewGroup(0, localView, existing_text);
+        try {
+            ViewGroup localView = (ViewGroup) inflater.inflate(views.getLayoutId(), null);
+            views.reapply(getApplicationContext(), localView);
+            return dumpViewGroup(0, localView, existing_text);
+        } catch (android.content.res.Resources.NotFoundException e) {
+            return "";
+        }
     }
 
     private String dumpViewGroup(int depth, ViewGroup vg, String existing_text) {

@@ -53,6 +53,7 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
     Constants.Mode    mMode;
     Spinner           spMode;
     CheckBox          chkNotificationsOnly;
+    CheckBox          chkDetailedNotifications;
     SharedPreferences sharedPreferences;
 
     @Override
@@ -64,6 +65,7 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
         spMode = (Spinner) findViewById(R.id.spMode);
         tvTaskerNotice = (TextView) findViewById(R.id.tvTaskerNotice);
         chkNotificationsOnly = (CheckBox) findViewById(R.id.chkNotificationsOnly);
+        chkDetailedNotifications = (CheckBox) findViewById(R.id.chkDetailedNotifications);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.mode_choices,
                 android.R.layout.simple_spinner_item);
@@ -77,6 +79,10 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
                 tvTaskerNotice.setVisibility(View.VISIBLE);
             }
             spMode.setSelection(sharedPreferences.getInt(Constants.PREFERENCE_MODE, Constants.Mode.OFF.ordinal()));
+            chkNotificationsOnly.setChecked(sharedPreferences
+                    .getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false));
+            chkDetailedNotifications.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA,
+                    false));
 
             // legacy preference handler
             if (sharedPreferences.contains(Constants.PREFERENCE_EXCLUDE_MODE)) {
@@ -85,15 +91,14 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
                 } else {
                     spMode.setSelection(Constants.Mode.EXCLUDE.ordinal());
                 }
-            } else {
-                chkNotificationsOnly.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY,
-                        false));
             }
         } else if (mode == Mode.LOCALE) {
             if (localeBundle != null) {
                 spMode.setSelection(localeBundle.getInt(Constants.BUNDLE_EXTRA_INT_MODE, Constants.Mode.OFF.ordinal()));
                 chkNotificationsOnly.setChecked(localeBundle.getBoolean(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY,
                         false));
+                chkDetailedNotifications.setChecked(localeBundle.getBoolean(
+                        Constants.BUNDLE_EXTRA_BOOL_NOTIFICATION_EXTRAS, false));
             }
         }
 
@@ -162,6 +167,8 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
             findViewById(R.id.spMode).setVisibility(View.GONE);
             findViewById(R.id.tvMode).setVisibility(View.GONE);
             findViewById(R.id.chkNotificationsOnly).setVisibility(View.GONE);
+            findViewById(R.id.chkDetailedNotifications).setVisibility(View.GONE);
+            findViewById(android.R.id.empty).setVisibility(View.GONE);
             findViewById(R.id.listPackages).setEnabled(false);
             if (Constants.IS_LOGGABLE) {
                 Log.i(Constants.LOG_TAG, "The accessibility service is NOT on!");
@@ -171,6 +178,9 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
             findViewById(R.id.spMode).setVisibility(View.VISIBLE);
             findViewById(R.id.tvMode).setVisibility(View.VISIBLE);
             findViewById(R.id.chkNotificationsOnly).setVisibility(View.VISIBLE);
+            findViewById(R.id.chkDetailedNotifications).setVisibility(View.VISIBLE);
+            findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+            findViewById(R.id.listPackages).setEnabled(true);
             if (Constants.IS_LOGGABLE) {
                 Log.i(Constants.LOG_TAG, "The accessibility service is on!");
             }
@@ -215,6 +225,12 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
                 break;
             }
 
+            if (chkDetailedNotifications.isChecked()) {
+                Log.i(Constants.LOG_TAG, "Going to fetch detailed notifications");
+            } else {
+                Log.i(Constants.LOG_TAG, "Not going to fetch detailed notifications");
+            }
+
             if (chkNotificationsOnly.isChecked()) {
                 Log.i(Constants.LOG_TAG, "Only going to send notifications");
             } else {
@@ -228,6 +244,7 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
             Editor editor = sharedPreferences.edit();
             editor.putInt(Constants.PREFERENCE_MODE, mMode.ordinal());
             editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, chkNotificationsOnly.isChecked());
+            editor.putBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, chkDetailedNotifications.isChecked());
             editor.putString(Constants.PREFERENCE_PACKAGE_LIST, selectedPackages);
 
             // we saved via the application, reset the variable if it exists
@@ -262,6 +279,8 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
                 resultBundle.putInt(Constants.BUNDLE_EXTRA_INT_MODE, mMode.ordinal());
                 resultBundle.putBoolean(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY,
                         chkNotificationsOnly.isChecked());
+                resultBundle.putBoolean(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATION_EXTRAS,
+                        chkDetailedNotifications.isChecked());
                 resultBundle.putString(Constants.BUNDLE_EXTRA_STRING_PACKAGE_LIST, selectedPackages);
                 String blurb = "";
                 switch (mMode) {
@@ -387,6 +406,7 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
                 viewHolder.textView = (TextView) rowView.findViewById(R.id.tvPackage);
                 viewHolder.imageView = (ImageView) rowView.findViewById(R.id.ivIcon);
                 viewHolder.chkEnabled = (CheckBox) rowView.findViewById(R.id.chkEnabled);
+                viewHolder.chkEnabled.setOnCheckedChangeListener(this);
 
                 rowView.setOnClickListener(this);
                 rowView.setTag(viewHolder);
@@ -399,15 +419,17 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
             viewHolder.textView.setText(info.applicationInfo.loadLabel(getPackageManager()).toString());
             viewHolder.imageView.setImageDrawable(info.applicationInfo.loadIcon(getPackageManager()));
             viewHolder.chkEnabled.setTag(info.packageName);
-            viewHolder.chkEnabled.setChecked(false);
+
+            boolean boolSelected = false;
 
             for (String strPackage : selected) {
                 if (info.packageName.equalsIgnoreCase(strPackage)) {
-                    viewHolder.chkEnabled.setChecked(true);
+
+                    boolSelected = true;
                     break;
                 }
             }
-            viewHolder.chkEnabled.setOnCheckedChangeListener(this);
+            viewHolder.chkEnabled.setChecked(boolSelected);
 
             return rowView;
         }
