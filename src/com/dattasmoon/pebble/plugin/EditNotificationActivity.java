@@ -46,7 +46,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class EditNotificationActivity extends AbstractPluginActivity implements OnItemSelectedListener {
+public class EditNotificationActivity extends AbstractPluginActivity {
 
     ListView          lvPackages;
     TextView          tvTaskerNotice;
@@ -71,7 +71,20 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
                 android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spMode.setAdapter(adapter);
-        spMode.setOnItemSelectedListener(this);
+        spMode.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                mMode = Constants.Mode.values()[pos];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                mMode = Constants.Mode.OFF;
+                if (Constants.IS_LOGGABLE) {
+                    Log.i(Constants.LOG_TAG, "Mode is: off");
+                }
+            }
+        });
 
         if (mode == Mode.STANDARD) {
             sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
@@ -119,6 +132,9 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (Constants.IS_LOGGABLE) {
+            Log.i(Constants.LOG_TAG, "Selected menu item id: " + String.valueOf(item.getItemId()));
+        }
         switch (item.getItemId()) {
         case R.id.btnUncheckAll:
             ((packageAdapter) lvPackages.getAdapter()).selected.clear();
@@ -134,6 +150,11 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemSelected(final int featureId, final MenuItem item) {
+        return onOptionsItemSelected(item);
     }
 
     public void checkAccessibilityService() {
@@ -320,19 +341,6 @@ public class EditNotificationActivity extends AbstractPluginActivity implements 
         }
         save();
         super.finish();
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        mMode = Constants.Mode.values()[pos];
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-        mMode = Constants.Mode.OFF;
-        if (Constants.IS_LOGGABLE) {
-            Log.i(Constants.LOG_TAG, "Mode is: off");
-        }
     }
 
     private class LoadAppsTask extends AsyncTask<Void, Integer, List<PackageInfo>> {

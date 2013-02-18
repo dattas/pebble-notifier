@@ -86,9 +86,10 @@ public abstract class AbstractPluginActivity extends Activity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 setupActionBarApi14();
             }
+            return true;
         }
+        return false;
 
-        return true;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -111,6 +112,9 @@ public abstract class AbstractPluginActivity extends Activity {
 
     @Override
     public boolean onMenuItemSelected(final int featureId, final MenuItem item) {
+        if (Constants.IS_LOGGABLE) {
+            Log.i(Constants.LOG_TAG, "Abstract plugin: Selected menu item id: " + String.valueOf(item.getItemId()));
+        }
         final int id = item.getItemId();
 
         if (android.R.id.home == id) {
