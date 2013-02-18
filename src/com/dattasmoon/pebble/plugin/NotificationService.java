@@ -344,9 +344,17 @@ public class NotificationService extends AccessibilityService {
             if (v.getId() == android.R.id.title || v instanceof android.widget.Button
                     || v.getClass().toString().contains("android.widget.DateTimeView")) {
                 if (Constants.IS_LOGGABLE) {
-                    Log.d(Constants.LOG_TAG, "I am going to skip this");
+                    Log.d(Constants.LOG_TAG, "I am going to skip this, but if I didn't, the text would be: "
+                            + ((TextView) v).getText().toString());
                 }
-                continue;
+                if (existing_text.isEmpty() && v.getId() == android.R.id.title) {
+                    if (Constants.IS_LOGGABLE) {
+                        Log.d(Constants.LOG_TAG,
+                                "I was going to skip this, but the existing text was empty, and I need something.");
+                    }
+                } else {
+                    continue;
+                }
             }
 
             if (v instanceof TextView) {
