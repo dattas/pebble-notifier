@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/btnUncheckAll" android:title="Uncheck All"></item>
-    <item android:id="@+id/btnSave" android:title="Save"></item>
-    <item android:id="@+id/btnAbout" android:title="About" android:visible="false"></item>
-    <item android:id="@+id/btnDonate" android:title="Donate"></item>
-    
-
+    <item android:id="@+id/btnUncheckAll" android:title="@string/menu_uncheck_all"></item>
+    <item android:id="@+id/btnSave" android:title="@string/menu_save"></item>
+    <item android:id="@+id/btnSettings" android:title="@string/menu_settings"></item>
+    <item android:id="@+id/btnAbout" android:title="@string/menu_about" android:visible="false"></item>
+    <item android:id="@+id/btnDonate" android:title="@string/menu_donate"></item>
 </menu>

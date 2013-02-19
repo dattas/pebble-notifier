@@ -148,6 +148,10 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             i.setData(Uri.parse(Constants.DONATION_URL));
             startActivity(i);
             return true;
+        case R.id.btnSettings:
+            Intent settings = new Intent(this, SettingsActivity.class);
+            startActivity(settings);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

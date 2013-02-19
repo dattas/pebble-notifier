@@ -1,5 +1,6 @@
 /* 
 Copyright (c) 2013 Dattas Moonchaser
+Parts Copyright (c) 2013 Robin Sheat
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -20,7 +21,10 @@ import org.json.JSONObject;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.dattasmoon.pebble.plugin.Constants.Mode;
@@ -37,8 +41,20 @@ public class FireReceiver extends BroadcastReceiver {
             int bundleVersionCode = intent.getIntExtra(Constants.BUNDLE_EXTRA_INT_VERSION_CODE, 1);
 
             Type type = Type.values()[intent.getIntExtra(Constants.BUNDLE_EXTRA_INT_TYPE, Type.NOTIFICATION.ordinal())];
+            PowerManager pm;
             switch (type) {
             case NOTIFICATION:
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+                boolean notifScreenOn = sharedPref.getBoolean(SettingsActivity.PREF_NOTIF_SCREEN_ON, true);
+                pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+                if (Constants.IS_LOGGABLE) {
+                    Log.d(Constants.LOG_TAG, "FireReceiver.onReceive: notifScreenOn=" + notifScreenOn + "  screen="
+                            + pm.isScreenOn());
+                }
+                if (!notifScreenOn && pm.isScreenOn()) {
+                    break;
+                }
+
                 String title = intent.getStringExtra(Constants.BUNDLE_EXTRA_STRING_TITLE);
                 String body = intent.getStringExtra(Constants.BUNDLE_EXTRA_STRING_BODY);
 
