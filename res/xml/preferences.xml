@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:key="pref_cat_dnd"
+        android:title="@string/pref_cat_dnd" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_notif_screen_on"
+            android:summary="@string/pref_notif_screen_on_summ"
+            android:title="@string/pref_notif_screen_on" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

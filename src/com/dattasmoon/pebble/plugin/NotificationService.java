@@ -1,5 +1,6 @@
 /* 
 Copyright (c) 2013 Dattas Moonchaser
+Parts Copyright (c) 2013 Robin Sheat
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -31,6 +32,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,6 +96,18 @@ public class NotificationService extends AccessibilityService {
                     return;
                 }
             }
+        }
+
+        // Handle the do not disturb settings
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean notifScreenOn = sharedPref.getBoolean(SettingsActivity.PREF_NOTIF_SCREEN_ON, true);
+        PowerManager powMan = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+        if (Constants.IS_LOGGABLE) {
+            Log.d(Constants.LOG_TAG, "NotificationService.onAccessibilityEvent: notifScreenOn=" + notifScreenOn
+                    + "  screen=" + powMan.isScreenOn());
+        }
+        if (!notifScreenOn && powMan.isScreenOn()) {
+            return;
         }
 
         if (event == null) {
@@ -359,7 +374,7 @@ public class NotificationService extends AccessibilityService {
 
             if (v instanceof TextView) {
                 TextView tv = (TextView) v;
-                if (tv.getText().toString() == "..." || tv.getText().toString() == "É"
+                if (tv.getText().toString() == "..." || tv.getText().toString() == "ï¿½"
                         || isInteger(tv.getText().toString())
                         || tv.getText().toString().trim().equalsIgnoreCase(existing_text)) {
                     if (Constants.IS_LOGGABLE) {
