@@ -14,6 +14,7 @@ import android.app.Activity;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,7 +33,7 @@ public abstract class AbstractPluginActivity extends Activity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         localeBundle = getIntent().getBundleExtra(com.twofortyfouram.locale.Intent.EXTRA_BUNDLE);
 
         if (getIntent().getAction() == "com.twofortyfouram.locale.intent.action.EDIT_SETTING") {
