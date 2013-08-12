@@ -318,6 +318,8 @@ public class NotificationService extends AccessibilityService {
             return dumpViewGroup(0, localView, existing_text);
         } catch (android.content.res.Resources.NotFoundException e) {
             return "";
+        } catch (RemoteViews.ActionException e) {
+            return "";
         }
     }
 
