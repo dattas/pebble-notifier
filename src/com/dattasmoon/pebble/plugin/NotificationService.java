@@ -123,7 +123,12 @@ public class NotificationService extends AccessibilityService {
         // main logic
         PackageManager pm = getPackageManager();
 
-        String eventPackageName = event.getPackageName().toString();
+        String eventPackageName;
+        if (event.getPackageName() != null){
+            eventPackageName = event.getPackageName().toString();
+        } else {
+            eventPackageName = "";
+        }
         if (Constants.IS_LOGGABLE) {
             Log.i(Constants.LOG_TAG, "Service package list is: ");
             for (String strPackage : packages) {
