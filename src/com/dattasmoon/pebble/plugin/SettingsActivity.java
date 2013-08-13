@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Robin Sheat
+Copyright (c) 2013 Robin Sheat and Dattas Moonchaser
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -21,10 +21,18 @@ SOFTWARE.
  */
 package com.dattasmoon.pebble.plugin;
 
+import android.app.Dialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
+import android.preference.PreferenceCategory;
+import android.view.View;
+import android.view.Window;
 import android.widget.Toast;
 
 import java.io.File;
@@ -37,6 +45,7 @@ import java.io.IOException;
  * @author robin
  */
 public class SettingsActivity extends PreferenceActivity {
+    int pref_version_clicks = 0;
 
     // Using the deprecated methods because that supports android < 3 without
     // too much hassle.
@@ -63,6 +72,54 @@ public class SettingsActivity extends PreferenceActivity {
             Toast.makeText(this, "Converted your old settings", Toast.LENGTH_SHORT).show();
         }
         addPreferencesFromResource(R.xml.preferences);
+
+        PreferenceCategory pc = (PreferenceCategory) findPreference("About");
+        Preference pref_version = new Preference(this);
+        pref_version.setTitle("Version");
+        PackageInfo packageInfo;
+        try {
+            packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            pref_version.setSummary(packageInfo.versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        pc.addPreference(pref_version);
+        pref_version.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                pref_version_clicks++;
+                if(pref_version_clicks > 5){
+                    final Dialog easterDialog = new Dialog(SettingsActivity.this);
+                    easterDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+                    easterDialog.setContentView(getLayoutInflater().inflate(R.layout.dialog_easter_hidden, null));
+                    easterDialog.findViewById(R.id.btnOK).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            easterDialog.dismiss();
+                        }
+                    });
+                    easterDialog.show();
+                    pref_version_clicks = 0;
+                }
+                return true;
+
+
+            }
+        });
+
+        Preference pref_donate = findPreference("pref_donate");
+        pref_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                //send intent
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(Constants.DONATION_URL));
+                startActivity(i);
+                return true;
+            }
+        });
+
+
     }
 
     @Override

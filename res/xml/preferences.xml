@@ -34,13 +34,21 @@
                 android:dependency="pref_dnd_time_enabled"
                 android:summary="@string/pref_dnd_time_before_summ"
                 android:title="@string/pref_dnd_time_before"
-                />
+                android:defaultValue="06:00" />
             <com.dattasmoon.pebble.plugin.TimePreference
                 android:key="pref_dnd_time_after"
                 android:dependency="pref_dnd_time_enabled"
                 android:summary="@string/pref_dnd_time_after_summ"
                 android:title="@string/pref_dnd_time_after"
-                />
+                android:defaultValue="21:00" />
+    </PreferenceCategory>
+    <PreferenceCategory
+            android:title="@string/pref_about"
+            android:key="About" >
+        <Preference
+                android:title="@string/pref_donate"
+                android:key="pref_donate"
+                android:summary="@string/pref_donate_summ" />
     </PreferenceCategory>
 
 </PreferenceScreen>
