@@ -27,6 +27,9 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * This activity handles any logic for the settings screen (of which there is\
  * currently none.)
@@ -45,7 +48,7 @@ public class SettingsActivity extends PreferenceActivity {
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
         //if old preferences exist, convert them.
         if(sharedPreferences.contains(Constants.LOG_TAG + ".mode")){
-            SharedPreferences sharedPref = getSharedPreferences(Constants.LOG_TAG+"_preferences", MODE_MULTI_PROCESS | MODE_PRIVATE);
+            SharedPreferences sharedPref = getSharedPreferences(Constants.LOG_TAG + "_preferences", MODE_MULTI_PROCESS | MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putInt(Constants.PREFERENCE_MODE, sharedPreferences.getInt(Constants.LOG_TAG + ".mode", Constants.Mode.OFF.ordinal()));
             editor.putString(Constants.PREFERENCE_PACKAGE_LIST, sharedPreferences.getString(Constants.LOG_TAG + ".packageList", ""));
@@ -60,6 +63,21 @@ public class SettingsActivity extends PreferenceActivity {
             Toast.makeText(this, "Converted your old settings", Toast.LENGTH_SHORT).show();
         }
         addPreferencesFromResource(R.xml.preferences);
+    }
+
+    @Override
+    protected void onPause(){
+        File watchFile = new File(getFilesDir() + "PrefsChanged.none");
+        if (!watchFile.exists()) {
+            try {
+                watchFile.createNewFile();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            watchFile.setLastModified(System.currentTimeMillis());
+        }
+        super.onPause();
     }
 
 }
