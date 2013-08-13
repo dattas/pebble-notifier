@@ -12,6 +12,8 @@ package com.dattasmoon.pebble.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +47,9 @@ public class FireReceiver extends BroadcastReceiver {
             switch (type) {
             case NOTIFICATION:
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-                boolean notifScreenOn = sharedPref.getBoolean(SettingsActivity.PREF_NOTIF_SCREEN_ON, true);
+
+                // handle screen DND
+                boolean notifScreenOn = sharedPref.getBoolean(Constants.PREFERENCE_NOTIF_SCREEN_ON, true);
                 pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
                 if (Constants.IS_LOGGABLE) {
                     Log.d(Constants.LOG_TAG, "FireReceiver.onReceive: notifScreenOn=" + notifScreenOn + "  screen="
@@ -55,6 +59,28 @@ public class FireReceiver extends BroadcastReceiver {
                     break;
                 }
 
+                //handle quiet hours DND
+                boolean quiet_hours = sharedPref.getBoolean(Constants.PREFERENCE_QUIET_HOURS, false);
+                //we only need to pull this if quiet hours are enabled. Save the cycles for the cpu! (haha)
+                if(quiet_hours){
+                    String[] pieces = sharedPref.getString(Constants.PREFERENCE_QUIET_HOURS_BEFORE, "00:00").split(":");
+                    Date quiet_hours_before= new Date(0, 0, 0, Integer.parseInt(pieces[0]), Integer.parseInt(pieces[1]));
+                    pieces = sharedPref.getString(Constants.PREFERENCE_QUIET_HOURS_AFTER, "23:59").split(":");
+                    Date quiet_hours_after = new Date(0, 0, 0, Integer.parseInt(pieces[0]), Integer.parseInt(pieces[1]));
+                    Calendar c = Calendar.getInstance();
+                    Date now = new Date(0, 0, 0, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE));
+                    if (Constants.IS_LOGGABLE) {
+                        Log.i(Constants.LOG_TAG, "Checking quiet hours. Now: " + now.toString() + " vs " +
+                                quiet_hours_before.toString() + " and " +quiet_hours_after.toString());
+                    }
+                    if(now.before(quiet_hours_before) || now.after(quiet_hours_after)){
+                        if (Constants.IS_LOGGABLE) {
+                            Log.i(Constants.LOG_TAG, "Time is before or after the quiet hours time. Returning.");
+                        }
+                        break;
+                    }
+                }
+
                 String title = intent.getStringExtra(Constants.BUNDLE_EXTRA_STRING_TITLE);
                 String body = intent.getStringExtra(Constants.BUNDLE_EXTRA_STRING_BODY);
 
@@ -62,21 +88,15 @@ public class FireReceiver extends BroadcastReceiver {
                 break;
             case SETTINGS:
                 Mode mode = Mode.values()[intent.getIntExtra(Constants.BUNDLE_EXTRA_INT_MODE, Mode.OFF.ordinal())];
-                boolean notificationsOnly = intent.getBooleanExtra(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY,
-                        false);
-                boolean detailedNotifications = intent.getBooleanExtra(Constants.BUNDLE_EXTRA_BOOL_NOTIFICATION_EXTRAS,
-                        false);
                 String packageList = intent.getStringExtra(Constants.BUNDLE_EXTRA_STRING_PACKAGE_LIST);
 
-                setNotificationSettings(context, bundleVersionCode, mode, notificationsOnly, detailedNotifications,
-                        packageList);
+                setNotificationSettings(context, bundleVersionCode, mode, packageList);
                 break;
             }
         }
     }
 
-    public void setNotificationSettings(final Context context, int bundleVersionCode, Mode mode,
-            boolean notificationsOnly, boolean detailedNotifications, String packageList) {
+    public void setNotificationSettings(final Context context, int bundleVersionCode, Mode mode,String packageList) {
 
         if (Constants.IS_LOGGABLE) {
             switch (mode) {
@@ -92,24 +112,11 @@ public class FireReceiver extends BroadcastReceiver {
             default:
                 Log.i(Constants.LOG_TAG, "Mode is: unknown (" + mode + ")");
             }
-            if (notificationsOnly) {
-                Log.i(Constants.LOG_TAG, "Only going to send notifications");
-            } else {
-                Log.i(Constants.LOG_TAG, "Sending all types of notifications, such as Toasts");
-            }
-            if (detailedNotifications) {
-                Log.i(Constants.LOG_TAG, "Going to fetch detailed notifications");
-            } else {
-                Log.i(Constants.LOG_TAG, "Not going to fetch detailed notifications");
-            }
             Log.i(Constants.LOG_TAG, "Package list is: " + packageList);
         }
 
-        Editor editor = context.getSharedPreferences(Constants.LOG_TAG,
-                Context.MODE_MULTI_PROCESS | Context.MODE_PRIVATE).edit();
+        Editor editor = context.getSharedPreferences(Constants.LOG_TAG+"_preferences", context.MODE_MULTI_PROCESS | context.MODE_PRIVATE).edit();
         editor.putInt(Constants.PREFERENCE_MODE, mode.ordinal());
-        editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, notificationsOnly);
-        editor.putBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, detailedNotifications);
         editor.putBoolean(Constants.PREFERENCE_TASKER_SET, true);
         editor.putString(Constants.PREFERENCE_PACKAGE_LIST, packageList);
         if (!editor.commit()) {

@@ -34,13 +34,17 @@ public final class Constants {
                                                                               + BUNDLE_EXTRA_STRING_BODY;
 
     // Shared preferences
-    public static final String  PREFERENCE_EXCLUDE_MODE               = LOG_TAG + ".excludeMode";
-    public static final String  PREFERENCE_MODE                       = LOG_TAG + ".mode";
-    public static final String  PREFERENCE_NOTIFICATIONS_ONLY         = LOG_TAG + ".notificationsOnly";
-    public static final String  PREFERENCE_PACKAGE_LIST               = LOG_TAG + ".packageList";
-    public static final String  PREFERENCE_MIN_NOTIFICATION_WAIT      = LOG_TAG + ".minNotificationWait";
-    public static final String  PREFERENCE_TASKER_SET                 = LOG_TAG + ".taskerSet";
-    public static final String  PREFERENCE_NOTIFICATION_EXTRA         = LOG_TAG + ".fetchNotificationExtras";
+    public static final String  PREFERENCE_EXCLUDE_MODE               = "excludeMode";
+    public static final String  PREFERENCE_MODE                       = "pref_mode";
+    public static final String  PREFERENCE_NOTIFICATIONS_ONLY         = "pref_notif_only";
+    public static final String  PREFERENCE_PACKAGE_LIST               = "pref_package_list";
+    public static final String  PREFERENCE_MIN_NOTIFICATION_WAIT      = "minNotificationWait";
+    public static final String  PREFERENCE_TASKER_SET                 = "pref_tasker_set";
+    public static final String  PREFERENCE_NOTIFICATION_EXTRA         = "pref_fetch_notif_extras";
+    public static final String  PREFERENCE_NOTIF_SCREEN_ON            = "pref_notif_screen_on";
+    public static final String  PREFERENCE_QUIET_HOURS                = "pref_dnd_time_enabled";
+    public static final String  PREFERENCE_QUIET_HOURS_BEFORE         = "pref_dnd_time_before";
+    public static final String  PREFERENCE_QUIET_HOURS_AFTER          = "pref_dnd_time_after";
 
     // Intents
     public static final String  INTENT_SEND_PEBBLE_NOTIFICATION       = "com.getpebble.action.SEND_NOTIFICATION";

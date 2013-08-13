@@ -10,7 +10,9 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:text="@string/accessability_error"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:background="#F00"
+        android:textColor="#FFF"/>
     <TextView
         android:id="@+id/tvTaskerNotice"
         android:layout_width="wrap_content"
@@ -34,27 +36,12 @@
         android:layout_below="@+id/tvTaskerNotice"
         android:layout_marginLeft="40dp"
         android:layout_toRightOf="@+id/tvMode" />
-    <CheckBox
-        android:id="@+id/chkNotificationsOnly"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/spMode"
-        android:text="@string/show_only_notifications" />
-    <CheckBox
-        android:id="@+id/chkDetailedNotifications"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/chkNotificationsOnly"
-        android:text="@string/fetch_detailed_notifications" />
-
     <ListView
         android:id="@+id/listPackages"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/chkDetailedNotifications"
+        android:layout_below="@+id/spMode"
         android:layout_marginTop="20dp" >
         
     </ListView>
@@ -62,7 +49,7 @@
 		    android:layout_width="fill_parent"
 		    android:layout_height="match_parent"
 		    android:gravity="center"
-		    android:layout_below="@+id/chkNotificationsOnly"
+		    android:layout_below="@+id/spMode"
 		    android:text="@string/loading_applications" 
 		    android:textAppearance="?android:attr/textAppearanceLarge"/>
 </RelativeLayout>

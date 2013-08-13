@@ -21,8 +21,11 @@ SOFTWARE.
  */
 package com.dattasmoon.pebble.plugin;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 /**
  * This activity handles any logic for the settings screen (of which there is\
@@ -32,14 +35,30 @@ import android.preference.PreferenceActivity;
  */
 public class SettingsActivity extends PreferenceActivity {
 
-    public static final String PREF_NOTIF_SCREEN_ON = "pref_notif_screen_on";
-
     // Using the deprecated methods because that supports android < 3 without
     // too much hassle.
     @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
+        //if old preferences exist, convert them.
+        if(sharedPreferences.contains(Constants.LOG_TAG + ".mode")){
+            SharedPreferences sharedPref = getSharedPreferences(Constants.LOG_TAG+"_preferences", MODE_MULTI_PROCESS | MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(Constants.PREFERENCE_MODE, sharedPreferences.getInt(Constants.LOG_TAG + ".mode", Constants.Mode.OFF.ordinal()));
+            editor.putString(Constants.PREFERENCE_PACKAGE_LIST, sharedPreferences.getString(Constants.LOG_TAG + ".packageList", ""));
+            editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, sharedPreferences.getBoolean(Constants.LOG_TAG + ".notificationsOnly", true));
+            editor.putBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, sharedPreferences.getBoolean(Constants.LOG_TAG + ".fetchNotificationExtras", false));
+            editor.commit();
+
+            //clear out all old preferences
+            editor = sharedPreferences.edit();
+            editor.clear();
+            editor.commit();
+            Toast.makeText(this, "Converted your old settings", Toast.LENGTH_SHORT).show();
+        }
         addPreferencesFromResource(R.xml.preferences);
     }
 

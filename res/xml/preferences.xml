@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory
+            android:key="pref_cat_gen"
+            android:title="@string/pref_cat_gen" >
+        <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_notif_only"
+                android:summary="@string/pref_notif_only_summ"
+                android:title="@string/pref_notif_only" />
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_fetch_notif_extras"
+                android:summary="@string/pref_fetch_notif_extras_summ"
+                android:title="@string/pref_fetch_notif_extras" />
+
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:key="pref_cat_dnd"
@@ -9,6 +24,23 @@
             android:key="pref_notif_screen_on"
             android:summary="@string/pref_notif_screen_on_summ"
             android:title="@string/pref_notif_screen_on" />
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_dnd_time_enabled"
+                android:summary="@string/pref_dnd_time_enabled_summ"
+                android:title="@string/pref_dnd_time_enabled" />
+            <com.dattasmoon.pebble.plugin.TimePreference
+                android:key="pref_dnd_time_before"
+                android:dependency="pref_dnd_time_enabled"
+                android:summary="@string/pref_dnd_time_before_summ"
+                android:title="@string/pref_dnd_time_before"
+                />
+            <com.dattasmoon.pebble.plugin.TimePreference
+                android:key="pref_dnd_time_after"
+                android:dependency="pref_dnd_time_enabled"
+                android:summary="@string/pref_dnd_time_after_summ"
+                android:title="@string/pref_dnd_time_after"
+                />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -12,10 +12,7 @@ package com.dattasmoon.pebble.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -58,8 +55,12 @@ public class NotificationService extends AccessibilityService {
     private Mode     mode                   = Mode.EXCLUDE;
     private boolean  notifications_only     = false;
     private boolean  notification_extras    = false;
+    private boolean  quiet_hours            = false;
+    private boolean  notifScreenOn          = true;
     private long     min_notification_wait  = 0 * 1000;
     private long     notification_last_sent = 0;
+    private Date     quiet_hours_before     = null;
+    private Date     quiet_hours_after      = null;
     private String[] packages               = null;
     private Handler  mHandler;
     private File     watchFile;
@@ -84,7 +85,25 @@ public class NotificationService extends AccessibilityService {
             return;
         }
 
-        // handle if they don't want toasts next
+        //handle quiet hours
+        if(quiet_hours){
+
+            Calendar c = Calendar.getInstance();
+            Date now = new Date(0, 0, 0, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE));
+            if (Constants.IS_LOGGABLE) {
+                Log.i(Constants.LOG_TAG, "Checking quiet hours. Now: " + now.toString() + " vs " +
+                        quiet_hours_before.toString() + " and " +quiet_hours_after.toString());
+            }
+            if(now.before(quiet_hours_before) || now.after(quiet_hours_after)){
+                if (Constants.IS_LOGGABLE) {
+                    Log.i(Constants.LOG_TAG, "Time is before or after the quiet hours time. Returning.");
+                }
+                return;
+            }
+
+        }
+
+        // handle if they only want notifications
         if (notifications_only) {
             if (event != null) {
                 Parcelable parcelable = event.getParcelableData();
@@ -98,9 +117,7 @@ public class NotificationService extends AccessibilityService {
             }
         }
 
-        // Handle the do not disturb settings
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean notifScreenOn = sharedPref.getBoolean(SettingsActivity.PREF_NOTIF_SCREEN_ON, true);
+        // Handle the do not disturb screen on settings
         PowerManager powMan = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
         if (Constants.IS_LOGGABLE) {
             Log.d(Constants.LOG_TAG, "NotificationService.onAccessibilityEvent: notifScreenOn=" + notifScreenOn
@@ -279,28 +296,49 @@ public class NotificationService extends AccessibilityService {
         if (Constants.IS_LOGGABLE) {
             Log.i(Constants.LOG_TAG, "I am loading preferences");
         }
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        int temp = sharedPreferences.getInt(Constants.PREFERENCE_MODE, -1);
-        if (temp == -1) {
-            if (!sharedPreferences.getBoolean(Constants.PREFERENCE_EXCLUDE_MODE, false)) {
-                mode = Mode.EXCLUDE;
-            } else {
-                mode = Mode.INCLUDE;
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
+        //if old preferences exist, convert them.
+        if(sharedPreferences.contains(Constants.LOG_TAG + ".mode")){
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(Constants.PREFERENCE_MODE, sharedPreferences.getInt(Constants.LOG_TAG + ".mode", Constants.Mode.OFF.ordinal()));
+            editor.putString(Constants.PREFERENCE_PACKAGE_LIST, sharedPreferences.getString(Constants.LOG_TAG + ".packageList", ""));
+            editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, sharedPreferences.getBoolean(Constants.LOG_TAG + ".notificationsOnly", true));
+            editor.putBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, sharedPreferences.getBoolean(Constants.LOG_TAG + ".fetchNotificationExtras", false));
+            editor.commit();
+
+            //clear out all old preferences
+            editor = sharedPreferences.edit();
+            editor.clear();
+            editor.commit();
+            if (Constants.IS_LOGGABLE) {
+                Log.i(Constants.LOG_TAG, "Converted preferences to new format. Old ones should be completely gone.");
             }
-        } else {
-            mode = Mode.values()[temp];
+
         }
+
+        mode = Mode.values()[sharedPref.getInt(Constants.PREFERENCE_MODE, Mode.OFF.ordinal())];
 
         if (Constants.IS_LOGGABLE) {
             Log.i(Constants.LOG_TAG,
-                    "Service package list is: " + sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, ""));
+                    "Service package list is: " + sharedPref.getString(Constants.PREFERENCE_PACKAGE_LIST, ""));
         }
 
-        packages = sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, "").split(",");
-        notifications_only = sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, false);
-        min_notification_wait = sharedPreferences.getInt(Constants.PREFERENCE_MIN_NOTIFICATION_WAIT, 0) * 1000;
-        notification_extras = sharedPreferences.getBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, false);
+        packages = sharedPref.getString(Constants.PREFERENCE_PACKAGE_LIST, "").split(",");
+        notifications_only = sharedPref.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, true);
+        min_notification_wait = sharedPref.getInt(Constants.PREFERENCE_MIN_NOTIFICATION_WAIT, 0) * 1000;
+        notification_extras = sharedPref.getBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, false);
+        notifScreenOn = sharedPref.getBoolean(Constants.PREFERENCE_NOTIF_SCREEN_ON, true);
+        quiet_hours = sharedPref.getBoolean(Constants.PREFERENCE_QUIET_HOURS, false);
+        //we only need to pull this if quiet hours are enabled. Save the cycles for the cpu! (haha)
+        if(quiet_hours){
+            String[] pieces = sharedPref.getString(Constants.PREFERENCE_QUIET_HOURS_BEFORE, "00:00").split(":");
+            quiet_hours_before= new Date(0, 0, 0, Integer.parseInt(pieces[0]), Integer.parseInt(pieces[1]));
+            pieces = sharedPref.getString(Constants.PREFERENCE_QUIET_HOURS_AFTER, "23:59").split(":");
+            quiet_hours_after = new Date(0, 0, 0, Integer.parseInt(pieces[0]), Integer.parseInt(pieces[1]));
+        }
+
         lastChange = watchFile.lastModified();
     }
 

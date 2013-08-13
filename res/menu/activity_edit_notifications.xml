@@ -2,7 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/btnUncheckAll" android:title="@string/menu_uncheck_all"></item>
     <item android:id="@+id/btnSave" android:title="@string/menu_save"></item>
-    <item android:id="@+id/btnSettings" android:title="@string/menu_settings"></item>
+    <item android:id="@+id/btnSettings"
+          android:showAsAction="ifRoom"
+          android:title="@string/menu_settings"></item>
     <item android:id="@+id/btnAbout" android:title="@string/menu_about" android:visible="false"></item>
     <item android:id="@+id/btnDonate" android:title="@string/menu_donate"></item>
 </menu>

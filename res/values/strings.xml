@@ -9,7 +9,7 @@
     <string name="mode" tools:ignore="MissingTranslation">Mode</string>
     <string name="accessibility_description" tools:ignore="MissingTranslation">This allows Pebble Notifier to forward notifications to your pebble!</string>
     <string name="application_icon" tools:ignore="MissingTranslation">Application Icon</string>
-    <string name="accessability_error" tools:ignore="MissingTranslation">This application will not work by itself until you have enabled Pebble Notifier in the Accessibility settings</string>
+    <string name="accessability_error" tools:ignore="MissingTranslation">This application will not work by itself until you have enabled Pebble Notifier in the Accessibility settings. Tap here to go to the Accessibility settings!</string>
     <string name="show_only_notifications" tools:ignore="MissingTranslation">Send only notifications</string>
     <string name="tasker_notice" tools:ignore="MissingTranslation">Please note that the last settings for this application was set by Tasker. Your Tasker settings will overwrite everything you set here.</string>
     <string name="loading_applications" tools:ignore="MissingTranslation">Loading Applications</string>
@@ -31,5 +31,21 @@
     <string name="pref_notif_screen_on">Notify when screen is on</string>
     <string name="pref_notif_screen_on_summ">If this is set, then notifications will be sent to the Pebble when the phone\'s screen is on.</string>
     <string name="pref_cat_dnd">Do Not Disturb Options</string>
+    <string name="pref_cat_gen">General Options</string>
+    <string name="pref_notif_only_summ">If disabled Android Toasts will also be sent to your Pebble</string>
+    <string name="pref_notif_only">Notifications only</string>
+    <string name="pref_fetch_notif_extras_summ">Some older or skinned android handsets modify the notification
+        structure. If you are not getting proper notifications or are crashing, turn this off!
+    </string>
+    <string name="pref_fetch_notif_extras">Fetch detailed notifications</string>
+    <string name="pref_dnd_time_enabled_summ">Allows you to prevent any notifications from being sent from Pebble
+        Notifier to your Pebble
+    </string>
+    <string name="pref_dnd_time_enabled">Quiet time</string>
+    <string name="pref_dnd_time_before_summ">No notifications before this time</string>
+    <string name="pref_dnd_time_before">Quiet time - Not before</string>
+    <string name="pref_dnd_time_after_summ">No notifications after this time</string>
+    <string name="pref_dnd_time_after">Quiet time - Not after</string>
+    <string name="pref_cat_dnd_quiet">Quiet hours</string>
 
 </resources>
