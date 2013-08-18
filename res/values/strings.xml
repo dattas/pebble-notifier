@@ -54,5 +54,9 @@
     <string name="pref_about">About</string>
     <string name="easter_dialog_text">Hello Pebble Notifier user,\n\nThank you for your curiosity. I wish I had something I could offer you for finding this message but I\'m just a college student giving this app away for free. I feel like app functionality should be complete for all users and because of this I\'ve included all of the functionality of the application to everybody, not just those who find this message. Due to these feelings this little message is pretty boring.\n\nAs a sorry for doing a lame hidden message you can email me at dattasmoon@gmail.com asking to be in the beta community. You\'ll be able to receive updates on upcoming features and help test my code before it goes out to the public!\n\nThank you for using my application,\n-Dattas Moonchaser\n
     </string>
+    <string name="pref_no_ongoing_notif_summ">Android notifications that have the ongoing flag set are not sent to your
+        Pebble
+    </string>
+    <string name="pref_no_ongoing_notif">Don\'t send ongoing notifications</string>
 
 </resources>

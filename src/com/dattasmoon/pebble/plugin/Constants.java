@@ -37,6 +37,7 @@ public final class Constants {
     public static final String  PREFERENCE_EXCLUDE_MODE               = "excludeMode";
     public static final String  PREFERENCE_MODE                       = "pref_mode";
     public static final String  PREFERENCE_NOTIFICATIONS_ONLY         = "pref_notif_only";
+    public static final String  PREFERENCE_NO_ONGOING_NOTIF           = "pref_no_ongoing_notif";
     public static final String  PREFERENCE_PACKAGE_LIST               = "pref_package_list";
     public static final String  PREFERENCE_MIN_NOTIFICATION_WAIT      = "minNotificationWait";
     public static final String  PREFERENCE_TASKER_SET                 = "pref_tasker_set";

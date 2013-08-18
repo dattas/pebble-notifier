@@ -54,6 +54,7 @@ public class NotificationService extends AccessibilityService {
 
     private Mode     mode                   = Mode.EXCLUDE;
     private boolean  notifications_only     = false;
+    private boolean  no_ongoing_notifs      = false;
     private boolean  notification_extras    = false;
     private boolean  quiet_hours            = false;
     private boolean  notifScreenOn          = true;
@@ -108,6 +109,7 @@ public class NotificationService extends AccessibilityService {
             if (event != null) {
                 Parcelable parcelable = event.getParcelableData();
                 if (!(parcelable instanceof Notification)) {
+
                     if (Constants.IS_LOGGABLE) {
                         Log.i(Constants.LOG_TAG,
                                 "Event is not a notification and notifications only is enabled. Returning.");
@@ -116,6 +118,29 @@ public class NotificationService extends AccessibilityService {
                 }
             }
         }
+        if (no_ongoing_notifs){
+            Parcelable parcelable = event.getParcelableData();
+            if (parcelable instanceof Notification) {
+                Notification notif = (Notification) parcelable;
+                if (Constants.IS_LOGGABLE) {
+                    Log.i(Constants.LOG_TAG,
+                            "Looking at " +  String.valueOf(notif.flags) + " vs " + String.valueOf(Notification.FLAG_ONGOING_EVENT));
+                }
+                if ((notif.flags & Notification.FLAG_ONGOING_EVENT) == Notification.FLAG_ONGOING_EVENT){
+                    if (Constants.IS_LOGGABLE) {
+                        Log.i(Constants.LOG_TAG,
+                                "Event is a notification, notification flag contains ongoing, and no ongoing notification is true. Returning.");
+                    }
+                    return;
+                }
+            } else {
+                if (Constants.IS_LOGGABLE) {
+                    Log.i(Constants.LOG_TAG,
+                            "Event is not a notification.");
+                }
+            }
+        }
+
 
         // Handle the do not disturb screen on settings
         PowerManager powMan = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
@@ -327,6 +352,7 @@ public class NotificationService extends AccessibilityService {
 
         packages = sharedPref.getString(Constants.PREFERENCE_PACKAGE_LIST, "").split(",");
         notifications_only = sharedPref.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, true);
+        no_ongoing_notifs = sharedPref.getBoolean(Constants.PREFERENCE_NO_ONGOING_NOTIF, false);
         min_notification_wait = sharedPref.getInt(Constants.PREFERENCE_MIN_NOTIFICATION_WAIT, 0) * 1000;
         notification_extras = sharedPref.getBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, false);
         notifScreenOn = sharedPref.getBoolean(Constants.PREFERENCE_NOTIF_SCREEN_ON, true);

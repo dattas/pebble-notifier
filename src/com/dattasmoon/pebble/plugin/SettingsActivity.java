@@ -79,7 +79,7 @@ public class SettingsActivity extends PreferenceActivity {
         PackageInfo packageInfo;
         try {
             packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            pref_version.setSummary(packageInfo.versionName + "b" + packageInfo.versionCode);
+            pref_version.setSummary(packageInfo.versionName + " - build " + packageInfo.versionCode);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
