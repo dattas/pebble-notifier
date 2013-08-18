@@ -130,6 +130,9 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         super.onCreateOptionsMenu(menu);
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.activity_edit_notifications, menu);
+        if(mode == Mode.LOCALE){
+            menu.removeItem(R.id.btnSettings);
+        }
         return true;
     }
 
