@@ -58,5 +58,7 @@
         Pebble
     </string>
     <string name="pref_no_ongoing_notif">Don\'t send ongoing notifications</string>
+    <string name="text_change">I want this setting to change</string>
+    <string name="text_tasker_setting">to this value</string>
 
 </resources>

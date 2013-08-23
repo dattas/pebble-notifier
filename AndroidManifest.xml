@@ -37,6 +37,16 @@
             </intent-filter>
         </activity>
         <activity
+                android:name="com.dattasmoon.pebble.plugin.SettingsTaskerActivity"
+                android:exported="true"
+                android:icon="@drawable/ic_launcher"
+                android:label="Pebble Notifier - Preferences"
+                android:theme="@style/Theme.Locale.Dark">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name="com.dattasmoon.pebble.plugin.EditActivity"
             android:exported="true"
             android:icon="@drawable/ic_launcher"
