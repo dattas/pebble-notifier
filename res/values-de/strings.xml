@@ -2,61 +2,53 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name" tools:ignore="MissingTranslation">Pebble Notifier</string>
-    <string name="notification_title_hint" tools:ignore="MissingTranslation">My pebble notification title</string>
-    <string name="notification_body_hint" tools:ignore="MissingTranslation">Notification body goes here! You can use any tasker variables such as %NTITLE for the notification title</string>
+    <string name="notification_title_hint" tools:ignore="MissingTranslation">Mein Titel der Benachtrichtigung für Pebble</string>
+    <string name="notification_body_hint" tools:ignore="MissingTranslation">Der Nachrichteninhalt gehört hier hin! Sie können jede Variable von Tasker wie z.B. %NTITLE für den Titel der Benachrichtigung verwenden</string>
     <string name="body" tools:ignore="MissingTranslation">Body</string>
     <string name="title" tools:ignore="MissingTranslation">Title</string>
-    <string name="mode" tools:ignore="MissingTranslation">Mode</string>
-    <string name="accessibility_description" tools:ignore="MissingTranslation">This allows Pebble Notifier to forward notifications to your pebble!</string>
-    <string name="application_icon" tools:ignore="MissingTranslation">Application Icon</string>
-    <string name="accessability_error" tools:ignore="MissingTranslation">This application will not work by itself until you have enabled Pebble Notifier in the Accessibility settings. Tap here to go to the Accessibility settings!</string>
-    <string name="show_only_notifications" tools:ignore="MissingTranslation">Send only notifications</string>
-    <string name="tasker_notice" tools:ignore="MissingTranslation">Please note that the last settings for this application was set by Tasker. Your Tasker settings will overwrite everything you set here.</string>
-    <string name="loading_applications" tools:ignore="MissingTranslation">Loading Applications</string>
-    <string name="fetch_detailed_notifications" tools:ignore="MissingTranslation">Fetch Detailed notifications for apps</string>
+    <string name="mode" tools:ignore="MissingTranslation">Modus</string>
+    <string name="accessibility_description" tools:ignore="MissingTranslation">Dies erlaubt Pebble Notifier Benachrichtigungen an Ihre Pebble zu senden!</string>
+    <string name="application_icon" tools:ignore="MissingTranslation">Anwendungssymbol</string>
+    <string name="accessability_error" tools:ignore="MissingTranslation">Diese App wird nicht funktionieren, bevor Sie Pebble Notifier in den Bedienungshilfen aktivieren. Hier berühren um die Bedienungshilfen zu öffnen!</string>
+    <string name="show_only_notifications" tools:ignore="MissingTranslation">Sende nur Benachrichtigungen</string>
+    <string name="tasker_notice" tools:ignore="MissingTranslation">Beachten Sie bitte, dass die letzten Einstellungen für diese Anwendung von Tasker gemacht wurden. Ihre Einstellungen in Tasker werden alles hier eingestellte überschreiben.</string>
+    <string name="loading_applications" tools:ignore="MissingTranslation">Lade Anwendungen</string>
+    <string name="fetch_detailed_notifications" tools:ignore="MissingTranslation">Hole detailierte Benachrichtigungen für Anwendungen</string>
 
     <string-array name="mode_choices" tools:ignore="MissingTranslation">
-        <item>Off</item>
-        <item>Exclude selected apps</item>
-        <item>Include ONLY selected apps</item>
+        <item>Aus</item>
+        <item>Ausgewählte ausschließen</item>
+        <item>NUR ausgewählte berücksichtigen</item>
     </string-array>
 
-    <string name="menu_uncheck_all">Uncheck All</string>
-    <string name="menu_save">Save</string>
-    <string name="menu_settings">Settings</string>
-    <string name="menu_about">About</string>
-    <string name="menu_donate">Donate</string>
-    <string name="title_activity_settings">Settings</string>
-    <string name="action_settings">Settings</string>
-    <string name="pref_notif_screen_on">Notify when screen is on</string>
-    <string name="pref_notif_screen_on_summ">If this is set, then notifications will be sent to the Pebble when the phone\'s screen is on.</string>
-    <string name="pref_cat_dnd">Do Not Disturb Options</string>
-    <string name="pref_cat_gen">General Options</string>
-    <string name="pref_notif_only_summ">If disabled Android Toasts will also be sent to your Pebble</string>
-    <string name="pref_notif_only">Notifications only</string>
-    <string name="pref_fetch_notif_extras_summ">Some older or skinned android handsets modify the notification
-        structure. If you are not getting proper notifications or are crashing, turn this off!
-    </string>
-    <string name="pref_fetch_notif_extras">Fetch detailed notifications</string>
-    <string name="pref_dnd_time_enabled_summ">Allows you to prevent any notifications from being sent from Pebble
-        Notifier to your Pebble
-    </string>
-    <string name="pref_dnd_time_enabled">Quiet time</string>
-    <string name="pref_dnd_time_before_summ">No notifications before this time</string>
-    <string name="pref_dnd_time_before">Quiet time - Not before</string>
-    <string name="pref_dnd_time_after_summ">No notifications after this time</string>
-    <string name="pref_dnd_time_after">Quiet time - Not after</string>
-    <string name="pref_cat_dnd_quiet">Quiet hours</string>
-    <string name="pref_donate_summ">Donations help development so if you like Pebble Notifier, please donate by clicking
-        here.
-    </string>
-    <string name="pref_donate">Donate</string>
-    <string name="pref_about">About</string>
+    <string name="menu_uncheck_all">Alle abwählen</string>
+    <string name="menu_save">Speichern</string>
+    <string name="menu_settings">Einstellungen</string>
+    <string name="menu_about">Über</string>
+    <string name="menu_donate">Spenden</string>
+    <string name="title_activity_settings">Einstellungen</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="pref_notif_screen_on">Benachrichtigen bei aktivem Bildschirm</string>
+    <string name="pref_notif_screen_on_summ">Wenn diese Einstellung gewählt ist, werden Benachrichtigungen auch an Pebble gesendet, wenn der Bildschirm des Telefon\'s aktiv ist.</string>
+    <string name="pref_cat_dnd">Bitte-nicht-stören Optionen</string>
+    <string name="pref_cat_gen">Allgemeine Optionen</string>
+    <string name="pref_notif_only_summ">Wenn abgewählt, werden auch Android Einblendungen an Ihre Pebble gesendet</string>
+    <string name="pref_notif_only">Nur Benachrichtigungen</string>
+    <string name="pref_fetch_notif_extras_summ">Einige ältere, oder mit Skin versehene Androidgeräte verändern das Benachrichtigungsverhalten. Wenn Sie falsche Beachrichtigungen bekommen, oder Abstürze haben bitte deaktivieren!</string>
+    <string name="pref_fetch_notif_extras">Hole detailierte Benachrichtigungen</string>
+    <string name="pref_dnd_time_enabled_summ">Verhindert, dass jegliche Benachrichtigungen von Pebble Notifier an Pebble gesendet werden</string>
+    <string name="pref_dnd_time_enabled">Ruhige Stunden</string>
+    <string name="pref_dnd_time_before_summ">Keine Benachrichtigungen vor dieser Zeit</string>
+    <string name="pref_dnd_time_before">Ruhige Stunden - Nicht vor</string>
+    <string name="pref_dnd_time_after_summ">Keine Benachrichtigungen nach dieser Zeit</string>
+    <string name="pref_dnd_time_after">Ruhige Stunden - Nicht nach</string>
+    <string name="pref_cat_dnd_quiet">Ruhige Stunden</string>
+    <string name="pref_donate_summ">Spenden helfen bei der Entwicklung. Wenn Sie diese App mögen spenden Sie bitte mit einem Klick hier</string>
+    <string name="pref_donate">Spenden</string>
+    <string name="pref_about">Über</string>
     <string name="easter_dialog_text">Hello Pebble Notifier user,\n\nThank you for your curiosity. I wish I had something I could offer you for finding this message but I\'m just a college student giving this app away for free. I feel like app functionality should be complete for all users and because of this I\'ve included all of the functionality of the application to everybody, not just those who find this message. Due to these feelings this little message is pretty boring.\n\nAs a sorry for doing a lame hidden message you can email me at dattasmoon@gmail.com asking to be in the beta community. You\'ll be able to receive updates on upcoming features and help test my code before it goes out to the public!\n\nThank you for using my application,\n-Dattas Moonchaser\n
     </string>
-    <string name="pref_no_ongoing_notif_summ">Android notifications that have the ongoing flag set are not sent to your
-        Pebble
-    </string>
-    <string name="pref_no_ongoing_notif">Don\'t send ongoing notifications</string>
+    <string name="pref_no_ongoing_notif_summ">Android-Benachrichtigungen die als ausgehend gekennzeichnet sind, werden nicht an Pebble gesendet</string>
+    <string name="pref_no_ongoing_notif">Keine ausgehenden Benachrichtigungen</string>
 
 </resources>
