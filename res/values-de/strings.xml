@@ -34,7 +34,7 @@
     <string name="pref_cat_gen">Allgemeine Optionen</string>
     <string name="pref_notif_only_summ">Wenn abgewählt, werden auch Android Einblendungen an Ihre Pebble gesendet</string>
     <string name="pref_notif_only">Nur Benachrichtigungen</string>
-    <string name="pref_fetch_notif_extras_summ">Einige ältere, oder mit Skin versehene Androidgeräte verändern das Benachrichtigungsverhalten. Wenn Sie falsche Beachrichtigungen bekommen, oder Abstürze haben bitte deaktivieren!</string>
+    <string name="pref_fetch_notif_extras_summ">Einige ältere, oder mit Skin versehene Androidgeräte verändern das Benachrichtigungsverhalten. Wenn Sie falsche Benachrichtigungen bekommen, oder Abstürze haben bitte deaktivieren!</string>
     <string name="pref_fetch_notif_extras">Hole detailierte Benachrichtigungen</string>
     <string name="pref_dnd_time_enabled_summ">Verhindert, dass jegliche Benachrichtigungen von Pebble Notifier an Pebble gesendet werden</string>
     <string name="pref_dnd_time_enabled">Ruhige Stunden</string>
