@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dattasmoon.pebble.plugin"
     android:installLocation="internalOnly"
-    android:versionCode="17"
+    android:versionCode="18"
     android:versionName="2.7" >
 
     <uses-sdk
@@ -32,6 +32,16 @@
             android:icon="@drawable/ic_launcher"
             android:label="Pebble Notifier - Settings"
             android:theme="@style/Theme.Locale.Dark">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+        <activity
+                android:name="com.dattasmoon.pebble.plugin.SettingsTaskerActivity"
+                android:exported="true"
+                android:icon="@drawable/ic_launcher"
+                android:label="Pebble Notifier - Preferences"
+                android:theme="@style/Theme.Locale.Dark">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
             </intent-filter>

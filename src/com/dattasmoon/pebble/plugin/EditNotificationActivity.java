@@ -149,6 +149,10 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             dialog.setCancelable(false);
             dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int buttonId) {
+                    if (lvPackages == null || lvPackages.getAdapter() == null || ((packageAdapter) lvPackages.getAdapter()).selected == null){
+                        //something went wrong
+                        return;
+                    }
                     ((packageAdapter) lvPackages.getAdapter()).selected.clear();
                     lvPackages.invalidateViews();
                 }
