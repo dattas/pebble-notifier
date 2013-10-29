@@ -98,7 +98,16 @@ public class NotificationService extends AccessibilityService {
                 Log.i(Constants.LOG_TAG, "Checking quiet hours. Now: " + now.toString() + " vs " +
                         quiet_hours_before.toString() + " and " +quiet_hours_after.toString());
             }
-            if(now.before(quiet_hours_before) || now.after(quiet_hours_after)){
+
+            if(quiet_hours_before.after(quiet_hours_after)){
+                if(now.after(quiet_hours_after) && now.before(quiet_hours_before)){
+                    if (Constants.IS_LOGGABLE) {
+                        Log.i(Constants.LOG_TAG, "Time is during quiet time. Returning.");
+                    }
+                    return;
+                }
+
+            } else if(now.before(quiet_hours_before) || now.after(quiet_hours_after)){
                 if (Constants.IS_LOGGABLE) {
                     Log.i(Constants.LOG_TAG, "Time is before or after the quiet hours time. Returning.");
                 }
