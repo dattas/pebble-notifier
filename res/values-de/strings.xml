@@ -55,5 +55,6 @@
     <string name="confirm_delete">Do you want to delete</string>
     <string name="confirm">Ja</string>
     <string name="decline">Keine</string>
+    <string name="empty_conversions">No conversions yet</string>
 
 </resources>
