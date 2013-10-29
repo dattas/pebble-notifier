@@ -44,6 +44,6 @@
             android:id="@id/android:empty"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="No conversions yet" />
+            android:text="@string/empty_conversions" />
 
 </LinearLayout>
