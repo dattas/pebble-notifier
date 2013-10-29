@@ -15,7 +15,6 @@ import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.drawable.TransitionDrawable;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -33,7 +32,7 @@ public class ConvertPreference extends DialogPreference {
     //JSONArray currentValue;
     public ConvertPreference(Context context, AttributeSet attrs){
         super(context, attrs);
-        setDialogLayoutResource(R.layout.preference_covert);
+        setDialogLayoutResource(R.layout.preference_convert);
         setPositiveButtonText(android.R.string.ok);
         setNegativeButtonText(android.R.string.cancel);
         setDialogIcon(null);
