@@ -50,5 +50,7 @@
     </string>
     <string name="pref_no_ongoing_notif_summ">Android-Benachrichtigungen die als ausgehend gekennzeichnet sind, werden nicht an Pebble gesendet</string>
     <string name="pref_no_ongoing_notif">Keine ausgehenden Benachrichtigungen</string>
+    <string name="pref_convert_summ">Convert characters or text that are unsupported on the Pebble watch to readable characters before sendin</string>
+    <string name="pref_convert">Convert Characters or Text</string>
 
 </resources>
