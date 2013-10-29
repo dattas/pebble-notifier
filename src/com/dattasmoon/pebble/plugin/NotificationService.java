@@ -13,6 +13,7 @@ package com.dattasmoon.pebble.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.json.JSONArray;
@@ -61,6 +62,7 @@ public class NotificationService extends AccessibilityService {
     private boolean  quiet_hours            = false;
     private boolean  notifScreenOn          = true;
     private JSONArray converts              = new JSONArray();
+    private JSONArray ignores               = new JSONArray();
     private long     min_notification_wait  = 0 * 1000;
     private long     notification_last_sent = 0;
     private Date     quiet_hours_before     = null;
@@ -255,6 +257,40 @@ public class NotificationService extends AccessibilityService {
             }
         }
 
+        // Check ignore lists
+        for(int i = 0; i < ignores.length(); i++){
+            try{
+                JSONObject ignore = ignores.getJSONObject(i);
+                String app = ignore.getString("app");
+                if((!app.equals("-1")) && (!eventPackageName.equalsIgnoreCase(app))){
+                    //this rule doesn't apply to all apps and this isn't the app we're looking for.
+                    continue;
+                }
+                String regex = "";
+                if(!ignore.getBoolean("raw")){
+                    regex = "(?i)" +Pattern.quote(ignore.getString("match"));
+                } else {
+                    regex = ignore.getString("match");
+                }
+                Pattern p = Pattern.compile(regex);
+                Matcher m = p.matcher(notificationText);
+                if(m.find()){
+                    if (Constants.IS_LOGGABLE) {
+                        Log.i(Constants.LOG_TAG, "Notification text of '" + notificationText + "' matches: '" + regex +"'. Returning");
+                    }
+                    return;
+                } else {
+                    if (Constants.IS_LOGGABLE) {
+                        Log.i(Constants.LOG_TAG, "Notification text of '" + notificationText + "' does not match: '" + regex +"'. Returning");
+                    }
+                }
+
+            } catch (JSONException e){
+                continue;
+            }
+        }
+
+
         // Send the alert to Pebble
 
         sendToPebble(title, notificationText);
@@ -386,6 +422,11 @@ public class NotificationService extends AccessibilityService {
         quiet_hours = sharedPref.getBoolean(Constants.PREFERENCE_QUIET_HOURS, false);
         try{
             converts = new JSONArray(sharedPref.getString(Constants.PREFERENCE_CONVERTS, "[]"));
+        } catch (JSONException e){
+            converts = new JSONArray();
+        }
+        try{
+            ignores = new JSONArray(sharedPref.getString(Constants.PREFERENCE_IGNORE, "[]"));
         } catch (JSONException e){
             converts = new JSONArray();
         }

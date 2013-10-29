@@ -62,6 +62,10 @@
     <string name="text_tasker_setting">to this value</string>
     <string name="pref_convert_summ">Convert characters or text that are unsupported on the Pebble watch to readable characters before sending</string>
     <string name="pref_convert">Convert Characters or Text</string>
+    <string name="confirm_delete">Do you want to delete</string>
+    <string name="confirm">Yes</string>
+    <string name="decline">No</string>
     <string name="empty_conversions">No conversions yet</string>
+    <string name="empty_filter">No filters yet</string>
 
 </resources>
