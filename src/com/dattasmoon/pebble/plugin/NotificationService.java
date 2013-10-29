@@ -13,8 +13,10 @@ package com.dattasmoon.pebble.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.accessibilityservice.AccessibilityService;
@@ -58,6 +60,7 @@ public class NotificationService extends AccessibilityService {
     private boolean  notification_extras    = false;
     private boolean  quiet_hours            = false;
     private boolean  notifScreenOn          = true;
+    private JSONArray converts              = new JSONArray();
     private long     min_notification_wait  = 0 * 1000;
     private long     notification_last_sent = 0;
     private Date     quiet_hours_before     = null;
@@ -262,6 +265,21 @@ public class NotificationService extends AccessibilityService {
             }
             return;
         }
+        for(int i = 0; i < converts.length(); i++){
+            String from;
+            String to;
+            try{
+                JSONObject convert = converts.getJSONObject(i);
+                from = "(?i)" + Pattern.quote(convert.getString("from"));
+                to = convert.getString("to");
+            } catch (JSONException e){
+                continue;
+            }
+            //not sure if the title should be replaced as well or not. I'm guessing not
+            //title = title.replaceAll(from, to);
+            notificationText = notificationText.replaceAll(from, to);
+        }
+
         // Create json object to be sent to Pebble
         final Map<String, Object> data = new HashMap<String, Object>();
 
@@ -357,6 +375,11 @@ public class NotificationService extends AccessibilityService {
         notification_extras = sharedPref.getBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, false);
         notifScreenOn = sharedPref.getBoolean(Constants.PREFERENCE_NOTIF_SCREEN_ON, true);
         quiet_hours = sharedPref.getBoolean(Constants.PREFERENCE_QUIET_HOURS, false);
+        try{
+            converts = new JSONArray(sharedPref.getString(Constants.PREFERENCE_CONVERTS, "[]"));
+        } catch (JSONException e){
+            converts = new JSONArray();
+        }
         //we only need to pull this if quiet hours are enabled. Save the cycles for the cpu! (haha)
         if(quiet_hours){
             String[] pieces = sharedPref.getString(Constants.PREFERENCE_QUIET_HOURS_BEFORE, "00:00").split(":");

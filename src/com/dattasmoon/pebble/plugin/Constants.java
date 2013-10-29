@@ -46,6 +46,7 @@ public final class Constants {
     public static final String  PREFERENCE_QUIET_HOURS                = "pref_dnd_time_enabled";
     public static final String  PREFERENCE_QUIET_HOURS_BEFORE         = "pref_dnd_time_before";
     public static final String  PREFERENCE_QUIET_HOURS_AFTER          = "pref_dnd_time_after";
+    public static final String  PREFERENCE_CONVERTS                   = "pref_converts";
 
     // Intents
     public static final String  INTENT_SEND_PEBBLE_NOTIFICATION       = "com.getpebble.action.SEND_NOTIFICATION";
