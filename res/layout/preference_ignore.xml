@@ -56,6 +56,6 @@
             android:id="@id/android:empty"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Nothing is in this ignore list" />
+            android:text="@string/empty_filter" />
 
 </LinearLayout>

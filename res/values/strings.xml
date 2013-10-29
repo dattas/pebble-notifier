@@ -66,5 +66,6 @@
     <string name="confirm">Yes</string>
     <string name="decline">No</string>
     <string name="empty_conversions">No conversions yet</string>
+    <string name="empty_filter">No filters yet</string>
 
 </resources>
