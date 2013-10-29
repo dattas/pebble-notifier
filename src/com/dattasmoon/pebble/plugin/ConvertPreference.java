@@ -59,8 +59,8 @@ public class ConvertPreference extends DialogPreference {
 
                 final int arrayPosition = (Integer) v.getTag();
                 final String text = ((TextView)v.findViewById(R.id.tvItem)).getText().toString();
-                builder.setMessage("Do you want to delete " + text + "?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                builder.setMessage(getContext().getResources().getString(R.string.confirm_delete) + " '" + text + "' ?")
+                        .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 JSONArray temp = new JSONArray();
                                 for(int i = 0; i < arrayAdapter.getJSONArray().length(); i++){
@@ -78,7 +78,7 @@ public class ConvertPreference extends DialogPreference {
                                 arrayAdapter.notifyDataSetChanged();
                             }
                         })
-                        .setNegativeButton("no", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.decline, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 // User cancelled the dialog
                             }
