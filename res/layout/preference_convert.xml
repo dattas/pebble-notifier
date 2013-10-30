@@ -31,7 +31,7 @@
         <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add"
+                android:text="@string/add"
                 android:id="@+id/btnAdd"/>
     </LinearLayout>
 
@@ -44,6 +44,8 @@
             android:id="@id/android:empty"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/empty_conversions" />
+            android:text="@string/empty_conversions"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_marginBottom="10dp"/>
 
 </LinearLayout>

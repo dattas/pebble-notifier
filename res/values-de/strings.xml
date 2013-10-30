@@ -57,5 +57,8 @@
     <string name="decline">Keine</string>
     <string name="empty_conversions">No conversions yet</string>
     <string name="empty_filter">No filters yet</string>
+    <string name="use_regex">Use Regex\n(Advanced)</string>
+    <string name="run_filter_against">Run against app</string>
+    <string name="add">Hinzufügen</string>
 
 </resources>
