@@ -26,7 +26,8 @@
                 android:layout_height="wrap_content"
                 android:text="Add"
                 android:layout_weight="0"
-                android:id="@+id/btnAdd"/>
+                android:id="@+id/btnAdd"
+                android:layout_gravity="center_vertical"/>
     </LinearLayout>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:orientation="horizontal"
