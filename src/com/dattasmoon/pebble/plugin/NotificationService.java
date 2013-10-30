@@ -428,7 +428,7 @@ public class NotificationService extends AccessibilityService {
         try{
             ignores = new JSONArray(sharedPref.getString(Constants.PREFERENCE_IGNORE, "[]"));
         } catch (JSONException e){
-            converts = new JSONArray();
+            ignores = new JSONArray();
         }
         //we only need to pull this if quiet hours are enabled. Save the cycles for the cpu! (haha)
         if(quiet_hours){
