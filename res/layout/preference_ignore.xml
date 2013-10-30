@@ -18,13 +18,13 @@
         <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Use Regex\n(Advanced)"
+                android:text="@string/use_regex"
                 android:id="@+id/chkRawRegex"
                 android:layout_weight="0"/>
         <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add"
+                android:text="@string/add"
                 android:layout_weight="0"
                 android:id="@+id/btnAdd"
                 android:layout_gravity="center_vertical"/>
@@ -38,7 +38,7 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Run against this application:"
+                android:text="@string/run_filter_against"
                 android:id="@+id/textView"
                 android:layout_gravity="center_vertical"/>
 
@@ -57,6 +57,8 @@
             android:id="@id/android:empty"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/empty_filter" />
+            android:text="@string/empty_filter"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_marginBottom="10dp"/>
 
 </LinearLayout>
