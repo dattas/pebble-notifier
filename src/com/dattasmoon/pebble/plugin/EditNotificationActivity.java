@@ -22,7 +22,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -345,14 +348,38 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         super.finish();
     }
 
-    private class LoadAppsTask extends AsyncTask<Void, Integer, List<PackageInfo>> {
+    private class LoadAppsTask extends AsyncTask<Void, Integer, Void> {
         public ArrayList<String> selected;
+        List<PackageInfo> pkgAppsList;
+        List<ApplicationInfo> appsList;
 
         @Override
-        protected List<PackageInfo> doInBackground(Void... unused) {
-            final List<PackageInfo> pkgAppsList = getPackageManager().getInstalledPackages(0);
-            PackageComparator comparer = new PackageComparator();
-            Collections.sort(pkgAppsList, comparer);
+        protected void onPreExecute(){
+            PackageManager pm = getPackageManager();
+            try{
+                pkgAppsList = pm.getInstalledPackages(0);
+            } catch (RuntimeException e){
+                //this is usually thrown when people have too many things installed (or bloatware in the case of Samsung devices)
+                pm = getPackageManager();
+                appsList = pm.getInstalledApplications(0);
+            }
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... unused) {
+            if (pkgAppsList == null && appsList == null) {
+                //something went really bad here
+                return null;
+            }
+            if (appsList == null) {
+                appsList = new ArrayList<ApplicationInfo>();
+                for(PackageInfo pkg : pkgAppsList){
+                    appsList.add(pkg.applicationInfo);
+                }
+            }
+            AppComparator comparer = new AppComparator(EditNotificationActivity.this);
+            Collections.sort(appsList, comparer);
             selected = new ArrayList<String>();
             String packageList;
             if (mode == Mode.LOCALE) {
@@ -387,33 +414,37 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             for (String strPackage : packageList.split(",")) {
                 // only add the ones that are still installed, providing cleanup
                 // and faster speeds all in one!
-                for (PackageInfo info : pkgAppsList) {
+                for (ApplicationInfo info : appsList) {
                     if (info.packageName.equalsIgnoreCase(strPackage)) {
                         selected.add(strPackage);
                     }
                 }
             }
-
-            return pkgAppsList;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(List<PackageInfo> pkgAppsList) {
-            lvPackages.setAdapter(new packageAdapter(EditNotificationActivity.this, pkgAppsList
-                    .toArray(new PackageInfo[pkgAppsList.size()]), selected));
+        protected void onPostExecute(Void unused) {
+            if (appsList == null) {
+                //something went wrong
+                return;
+            }
+            lvPackages.setAdapter(new packageAdapter(EditNotificationActivity.this, appsList
+                    .toArray(new ApplicationInfo[appsList.size()]), selected));
             findViewById(android.R.id.empty).setVisibility(View.GONE);
-
         }
     }
 
-    private class packageAdapter extends ArrayAdapter<PackageInfo> implements OnCheckedChangeListener, OnClickListener {
+    private class packageAdapter extends ArrayAdapter<ApplicationInfo> implements OnCheckedChangeListener, OnClickListener {
         private final Context       context;
-        private final PackageInfo[] packages;
+        private final PackageManager pm;
+        private final ApplicationInfo[] packages;
         public ArrayList<String>    selected;
 
-        public packageAdapter(Context context, PackageInfo[] packages, ArrayList<String> selected) {
+        public packageAdapter(Context context, ApplicationInfo[] packages, ArrayList<String> selected) {
             super(context, R.layout.list_application_item, packages);
             this.context = context;
+            this.pm = context.getPackageManager();
             this.packages = packages;
             this.selected = selected;
         }
@@ -436,12 +467,30 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                 rowView.setTag(viewHolder);
             } else {
                 viewHolder = (ListViewHolder) rowView.getTag();
-                // viewHolder.chkEnabled.rem
             }
-            PackageInfo info = packages[position];
+            ApplicationInfo info = packages[position];
 
-            viewHolder.textView.setText(info.applicationInfo.loadLabel(getPackageManager()).toString());
-            viewHolder.imageView.setImageDrawable(info.applicationInfo.loadIcon(getPackageManager()));
+            String appName;
+            try {
+               appName = info.loadLabel(pm).toString();
+            } catch (NullPointerException e ){
+                appName = null;
+            }
+
+            if(appName != null){
+                viewHolder.textView.setText(appName);
+            } else {
+                viewHolder.textView.setText("");
+            }
+            Drawable icon;
+            try {
+                icon = info.loadIcon(pm);
+            } catch (NullPointerException e){
+                icon = null;
+            }
+            if(icon != null){
+                viewHolder.imageView.setImageDrawable(icon);
+            }
             viewHolder.chkEnabled.setTag(info.packageName);
 
             boolean boolSelected = false;
@@ -497,13 +546,17 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         public ImageView imageView;
     }
 
-    public class PackageComparator implements Comparator<PackageInfo> {
+    public class AppComparator implements Comparator<ApplicationInfo> {
+        final PackageManager pm;
+        public AppComparator(Context context){
+            this.pm = context.getPackageManager();
+        }
 
         @Override
-        public int compare(PackageInfo leftPackage, PackageInfo rightPackage) {
+        public int compare(ApplicationInfo leftPackage, ApplicationInfo rightPackage) {
 
-            String leftName = leftPackage.applicationInfo.loadLabel(getPackageManager()).toString();
-            String rightName = rightPackage.applicationInfo.loadLabel(getPackageManager()).toString();
+            String leftName = leftPackage.loadLabel(pm).toString();
+            String rightName = rightPackage.loadLabel(pm).toString();
 
             return leftName.compareToIgnoreCase(rightName);
         }

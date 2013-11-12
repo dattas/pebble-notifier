@@ -136,10 +136,6 @@ public class NotificationService extends AccessibilityService {
             Parcelable parcelable = event.getParcelableData();
             if (parcelable instanceof Notification) {
                 Notification notif = (Notification) parcelable;
-                if (Constants.IS_LOGGABLE) {
-                    Log.i(Constants.LOG_TAG,
-                            "Looking at " +  String.valueOf(notif.flags) + " vs " + String.valueOf(Notification.FLAG_ONGOING_EVENT));
-                }
                 if ((notif.flags & Notification.FLAG_ONGOING_EVENT) == Notification.FLAG_ONGOING_EVENT){
                     if (Constants.IS_LOGGABLE) {
                         Log.i(Constants.LOG_TAG,
@@ -279,10 +275,6 @@ public class NotificationService extends AccessibilityService {
                         Log.i(Constants.LOG_TAG, "Notification text of '" + notificationText + "' matches: '" + regex +"'. Returning");
                     }
                     return;
-                } else {
-                    if (Constants.IS_LOGGABLE) {
-                        Log.i(Constants.LOG_TAG, "Notification text of '" + notificationText + "' does not match: '" + regex +"'. Returning");
-                    }
                 }
 
             } catch (JSONException e){
