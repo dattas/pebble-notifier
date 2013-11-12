@@ -12,7 +12,9 @@ package com.dattasmoon.pebble.plugin;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -100,7 +102,12 @@ public class IgnorePreference extends DialogPreference {
                 try {
                     item.put("match", etMatch.getText().toString());
                     item.put("raw", chkRawRegex.isChecked());
-                    item.put("app", spnApplications.getSelectedView().getTag().toString());
+                    if(spnApplications == null){
+                        //If they can't wait for the application list to load, then put it as any instead of crashing
+                        item.put("app", "-1");
+                    } else {
+                        item.put("app", spnApplications.getSelectedView().getTag().toString());
+                    }
                     if(Constants.IS_LOGGABLE){
                         Log.i(Constants.LOG_TAG, "Item is: " + item.toString());
                     }
@@ -151,33 +158,61 @@ public class IgnorePreference extends DialogPreference {
             persistString(tempValue);
         }
     }
-    private class LoadAppsTask extends AsyncTask<Void, Integer, List<PackageInfo>> {
+    private class LoadAppsTask extends AsyncTask<Void, Integer, Void> {
+        List<PackageInfo> pkgAppsList;
+        List<ApplicationInfo> appsList;
 
         @Override
-        protected List<PackageInfo> doInBackground(Void... unused) {
-            final List<PackageInfo> pkgAppsList = getContext().getPackageManager().getInstalledPackages(0);
+        protected void onPreExecute(){
+            PackageManager pm = getContext().getPackageManager();
+            try {
+                pkgAppsList = pm.getInstalledPackages(0);
+            } catch (RuntimeException e){
+                //this is usually thrown when people have too many things installed (or bloatware in the case of Samsung devices)
+                pm = getContext().getPackageManager();
+                appsList = pm.getInstalledApplications(0);
+            }
 
-            PackageComparator comparer = new PackageComparator();
-            Collections.sort(pkgAppsList, comparer);
-            pkgAppsList.add(0, null);
-            return pkgAppsList;
         }
 
         @Override
-        protected void onPostExecute(List<PackageInfo> pkgAppsList) {
-            packageAdapter adapter = new packageAdapter(getContext(), pkgAppsList
-                    .toArray(new PackageInfo[pkgAppsList.size()]));
+        protected Void doInBackground(Void... unused) {
+            if(pkgAppsList == null && appsList == null){
+                //something went really bad here
+                return null;
+            }
+            if(appsList == null){
+                appsList = new ArrayList<ApplicationInfo>();
+                for(PackageInfo pkg : pkgAppsList){
+                    appsList.add(pkg.applicationInfo);
+                }
+            }
+
+            AppComparator comparer = new AppComparator(getContext());
+            Collections.sort(appsList, comparer);
+            appsList.add(0, null);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            if(appsList == null){
+                //something went wrong
+                return;
+            }
+            packageAdapter adapter = new packageAdapter(getContext(), appsList
+                    .toArray(new ApplicationInfo[appsList.size()]));
             //adapter.setDropDownViewResource(R.layout.list_convert_item);
             spnApplications.setAdapter(adapter);
 
         }
     }
 
-    private class packageAdapter extends ArrayAdapter<PackageInfo> {
+    private class packageAdapter extends ArrayAdapter<ApplicationInfo> {
         private final Context       context;
-        private final PackageInfo[] packages;
+        private final ApplicationInfo[] packages;
 
-        public packageAdapter(Context context, PackageInfo[] packages) {
+        public packageAdapter(Context context, ApplicationInfo[] packages) {
             super(context, R.layout.list_convert_item, packages);
             this.context = context;
             this.packages = packages;
@@ -198,14 +233,14 @@ public class IgnorePreference extends DialogPreference {
 
             }
 
-            PackageInfo info = packages[position];
+            ApplicationInfo info = packages[position];
 
             TextView tvText = (TextView)rowView.findViewById(R.id.tvItem);
             if(info == null){
                 tvText.setText("Any");
                 rowView.setTag("-1");
             } else {
-                tvText.setText(info.applicationInfo.loadLabel(getContext().getPackageManager()).toString() + " ("+info.packageName+")");
+                tvText.setText(info.loadLabel(getContext().getPackageManager()).toString() + " ("+info.packageName+")");
                 rowView.setTag(info.packageName);
             }
 
@@ -286,13 +321,17 @@ public class IgnorePreference extends DialogPreference {
             return view;
         }
     }
-    public class PackageComparator implements Comparator<PackageInfo> {
+    public class AppComparator implements Comparator<ApplicationInfo> {
+        final PackageManager pm;
+        public AppComparator(Context context){
+            this.pm = context.getPackageManager();
+        }
 
         @Override
-        public int compare(PackageInfo leftPackage, PackageInfo rightPackage) {
+        public int compare(ApplicationInfo leftPackage, ApplicationInfo rightPackage) {
 
-            String leftName = leftPackage.applicationInfo.loadLabel(getContext().getPackageManager()).toString();
-            String rightName = rightPackage.applicationInfo.loadLabel(getContext().getPackageManager()).toString();
+            String leftName = leftPackage.loadLabel(pm).toString();
+            String rightName = rightPackage.loadLabel(pm).toString();
 
             return leftName.compareToIgnoreCase(rightName);
         }
