@@ -65,5 +65,8 @@
     <string name="dialog_confirm_title">Confirmation</string>
     <string name="dialog_uncheck_message">Are you sure you want to uncheck all of the boxes below?</string>
     <string name="ignore_any">Any</string>
+    <string name="dialog_title_rename_notification">Rename notification title?</string>
+    <string name="dialog_title_remove_rename">Do you want to remove the rename for </string>
+    <string name="error_cant_be_blank">This can\'t be blank</string>
 
 </resources>

@@ -27,6 +27,7 @@ public final class Constants {
     public static final String  BUNDLE_EXTRA_BOOL_NOTIFICATIONS_ONLY  = LOG_TAG + ".BOOL_NOTIFICATIONS_ONLY";
     public static final String  BUNDLE_EXTRA_STRING_PACKAGE_LIST      = LOG_TAG + ".STRING_PACKAGE_LIST";
     public static final String  BUNDLE_EXTRA_BOOL_NOTIFICATION_EXTRAS = LOG_TAG + ".BOOL_NOTIFICATION_EXTAS";
+    public static final String  BUNDLE_EXTRA_STRING_PKG_RENAMES       = LOG_TAG + ".STRING_PKG_RENAMES";
 
     // Tasker bundle extras
     public static final String  BUNDLE_EXTRA_REPLACE_KEY              = "net.dinglisch.android.tasker.extras.VARIABLE_REPLACE_KEYS";
@@ -48,6 +49,7 @@ public final class Constants {
     public static final String  PREFERENCE_QUIET_HOURS_AFTER          = "pref_dnd_time_after";
     public static final String  PREFERENCE_CONVERTS                   = "pref_converts";
     public static final String  PREFERENCE_IGNORE                     = "pref_ignore";
+    public static final String  PREFERENCE_PKG_RENAMES                = "pref_pkg_renames";
 
     // Intents
     public static final String  INTENT_SEND_PEBBLE_NOTIFICATION       = "com.getpebble.action.SEND_NOTIFICATION";

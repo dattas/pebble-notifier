@@ -63,6 +63,7 @@ public class NotificationService extends AccessibilityService {
     private boolean  notifScreenOn          = true;
     private JSONArray converts              = new JSONArray();
     private JSONArray ignores               = new JSONArray();
+    private JSONArray pkg_renames           = new JSONArray();
     private long     min_notification_wait  = 0 * 1000;
     private long     notification_last_sent = 0;
     private Date     quiet_hours_before     = null;
@@ -228,8 +229,19 @@ public class NotificationService extends AccessibilityService {
         // get the title
         String title = "";
         try {
-            title = pm.getApplicationLabel(pm.getApplicationInfo(eventPackageName, 0)).toString();
+            boolean renamed = false;
+            for(int i = 0; i < pkg_renames.length(); i++){
+                if(pkg_renames.getJSONObject(i).getString("pkg").equalsIgnoreCase(eventPackageName)){
+                    renamed = true;
+                    title = pkg_renames.getJSONObject(i).getString("to");
+                }
+            }
+            if(!renamed){
+                title = pm.getApplicationLabel(pm.getApplicationInfo(eventPackageName, 0)).toString();
+            }
         } catch (NameNotFoundException e) {
+            title = eventPackageName;
+        } catch (JSONException e) {
             title = eventPackageName;
         }
 
@@ -421,6 +433,11 @@ public class NotificationService extends AccessibilityService {
             ignores = new JSONArray(sharedPref.getString(Constants.PREFERENCE_IGNORE, "[]"));
         } catch (JSONException e){
             ignores = new JSONArray();
+        }
+        try{
+            pkg_renames = new JSONArray(sharedPref.getString(Constants.PREFERENCE_PKG_RENAMES, "[]"));
+        } catch (JSONException e){
+            pkg_renames = new JSONArray();
         }
         //we only need to pull this if quiet hours are enabled. Save the cycles for the cpu! (haha)
         if(quiet_hours){
