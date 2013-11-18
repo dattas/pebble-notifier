@@ -12,6 +12,7 @@ package com.dattasmoon.pebble.plugin;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
+import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TimePicker;
@@ -50,7 +51,7 @@ public class TimePreference extends DialogPreference {
     @Override
     protected void onBindDialogView(View v) {
         super.onBindDialogView(v);
-
+        picker.setIs24HourView(DateFormat.is24HourFormat(getContext()));
         picker.setCurrentHour(lastHour);
         picker.setCurrentMinute(lastMinute);
     }
