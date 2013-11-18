@@ -181,29 +181,6 @@ public class SettingsTaskerActivity extends AbstractPluginActivity {
             if(!newState){
                 ((CheckBox)v.findViewById(R.id.chkSetting)).setChecked(false);
             }
-            /*
-
-            String strPackage = (String) chkEnabled.getTag();
-
-            if (strPackage.isEmpty()) {
-                return;
-            }
-            if (Constants.IS_LOGGABLE) {
-                Log.i(Constants.LOG_TAG, "Check changed on " + strPackage);
-            }
-            if (newState) {
-                if (!selected.contains(strPackage)) {
-                    selected.add(strPackage);
-                }
-            } else {
-                while (selected.contains(strPackage)) {
-                    selected.remove(strPackage);
-                }
-            }
-            if (Constants.IS_LOGGABLE) {
-                Log.i(Constants.LOG_TAG, "Selected count is: " + String.valueOf(selected.size()));
-            }*/
-
         }
 
         @Override

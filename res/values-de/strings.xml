@@ -60,5 +60,10 @@
     <string name="use_regex">Nutze Regex\n(Erweitert)</string>
     <string name="run_filter_against">Run against app</string>
     <string name="add">Hinzufügen</string>
+    <string name="pref_ignore_summ">List of words or regular expressions where if it matches, it will not send the notification to your Pebble</string>
+    <string name="pref_ignore">Filter list</string>
+    <string name="dialog_confirm_title">Confirmation</string>
+    <string name="dialog_uncheck_message">Are you sure you want to uncheck all of the boxes below?</string>
+    <string name="ignore_any">Any</string>
 
 </resources>

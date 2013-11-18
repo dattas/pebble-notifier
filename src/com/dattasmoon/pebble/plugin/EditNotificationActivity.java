@@ -147,10 +147,10 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         switch (item.getItemId()) {
         case R.id.btnUncheckAll:
             AlertDialog dialog = new AlertDialog.Builder(this).create();
-            dialog.setTitle("Confirmation");
-            dialog.setMessage("Are you sure you want to uncheck all of the boxes below?");
+            dialog.setTitle(R.string.dialog_confirm_title);
+            dialog.setMessage(getString(R.string.dialog_uncheck_message));
             dialog.setCancelable(false);
-            dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
+            dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.confirm), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int buttonId) {
                     if (lvPackages == null || lvPackages.getAdapter() == null || ((packageAdapter) lvPackages.getAdapter()).selected == null){
                         //something went wrong
@@ -160,7 +160,7 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                     lvPackages.invalidateViews();
                 }
             });
-            dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
+            dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.decline), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int buttonId) {
                     //do nothing!
                 }
@@ -319,13 +319,13 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                 String blurb = "";
                 switch (mMode) {
                 case OFF:
-                    blurb = "Off";
+                    blurb = getResources().getStringArray(R.array.mode_choices)[0];
                     break;
                 case INCLUDE:
-                    blurb = "Mode Include";
+                    blurb = getResources().getStringArray(R.array.mode_choices)[2];
                     break;
                 case EXCLUDE:
-                    blurb = "Mode Exclude";
+                    blurb = getResources().getStringArray(R.array.mode_choices)[1];
                 }
                 Log.i(Constants.LOG_TAG, resultBundle.toString());
 

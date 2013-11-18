@@ -237,7 +237,7 @@ public class IgnorePreference extends DialogPreference {
 
             TextView tvText = (TextView)rowView.findViewById(R.id.tvItem);
             if(info == null){
-                tvText.setText("Any");
+                tvText.setText(context.getString(R.string.ignore_any));
                 rowView.setTag("-1");
             } else {
                 tvText.setText(info.loadLabel(getContext().getPackageManager()).toString() + " ("+info.packageName+")");
@@ -300,7 +300,7 @@ public class IgnorePreference extends DialogPreference {
                 }
                 String pkg = jsonObject.getString("app");
                 if(pkg.equals("-1")){
-                    itemText += "[Any] ";
+                    itemText += "["+context.getString(R.string.ignore_any)+"] ";
                 } else {
                     itemText += "[" + pkg + "] ";
                 }

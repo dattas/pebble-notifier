@@ -26,8 +26,8 @@
         <com.dattasmoon.pebble.plugin.IgnorePreference
                 android:defaultValue="[]"
                 android:key="pref_ignore"
-                android:summary="List of words or regular expressions where if it matches, it will not send the notification to your Pebble"
-                android:title="Filter list" />
+                android:summary="@string/pref_ignore_summ"
+                android:title="@string/pref_ignore" />
 
     </PreferenceCategory>
 
