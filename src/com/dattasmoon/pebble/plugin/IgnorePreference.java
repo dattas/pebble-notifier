@@ -36,6 +36,7 @@ public class IgnorePreference extends DialogPreference {
     EditText etMatch;
     CheckBox chkRawRegex;
     Spinner spnApplications;
+    Spinner spnMode;
     public IgnorePreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         setDialogLayoutResource(R.layout.preference_ignore);
@@ -51,6 +52,7 @@ public class IgnorePreference extends DialogPreference {
         etMatch = (EditText)view.findViewById(R.id.etMatch);
         chkRawRegex = (CheckBox)view.findViewById(R.id.chkRawRegex);
         spnApplications = (Spinner)view.findViewById(R.id.spnApplications);
+        spnMode = (Spinner)view.findViewById(R.id.spnMode);
         lvIgnore = (ListView) view.findViewById(R.id.lvIgnore);
         lvIgnore.setAdapter(arrayAdapter);
         lvIgnore.setEmptyView(view.findViewById(android.R.id.empty));
@@ -107,6 +109,11 @@ public class IgnorePreference extends DialogPreference {
                         item.put("app", "-1");
                     } else {
                         item.put("app", spnApplications.getSelectedView().getTag().toString());
+                    }
+                    if(spnMode.getSelectedItemPosition() == Constants.IgnoreMode.INCLUDE.ordinal()){
+                        item.put("exclude", false);
+                    } else {
+                        item.put("exclude", true);
                     }
                     if(Constants.IS_LOGGABLE){
                         Log.i(Constants.LOG_TAG, "Item is: " + item.toString());
@@ -202,7 +209,6 @@ public class IgnorePreference extends DialogPreference {
             }
             packageAdapter adapter = new packageAdapter(getContext(), appsList
                     .toArray(new ApplicationInfo[appsList.size()]));
-            //adapter.setDropDownViewResource(R.layout.list_convert_item);
             spnApplications.setAdapter(adapter);
 
         }
@@ -303,6 +309,9 @@ public class IgnorePreference extends DialogPreference {
                     itemText += "["+context.getString(R.string.ignore_any)+"] ";
                 } else {
                     itemText += "[" + pkg + "] ";
+                }
+                if(!jsonObject.optBoolean("exclude", true)){
+                    itemText += "NOT ";
                 }
                 itemText += jsonObject.getString("match");
             } catch (JSONException e) {

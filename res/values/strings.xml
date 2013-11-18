@@ -21,6 +21,11 @@
         <item>Include ONLY selected apps</item>
     </string-array>
 
+    <string-array name="filter_mode_choices" tools:ignore="MissingTranslation">
+        <item>Filter if contains</item>
+        <item>Filter if does not contain</item>
+    </string-array>
+
     <string name="menu_uncheck_all">Uncheck All</string>
     <string name="menu_save">Save</string>
     <string name="menu_settings">Settings</string>

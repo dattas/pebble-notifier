@@ -270,6 +270,7 @@ public class NotificationService extends AccessibilityService {
             try{
                 JSONObject ignore = ignores.getJSONObject(i);
                 String app = ignore.getString("app");
+                boolean exclude = ignore.optBoolean("exclude", true);
                 if((!app.equals("-1")) && (!eventPackageName.equalsIgnoreCase(app))){
                     //this rule doesn't apply to all apps and this isn't the app we're looking for.
                     continue;
@@ -283,12 +284,21 @@ public class NotificationService extends AccessibilityService {
                 Pattern p = Pattern.compile(regex);
                 Matcher m = p.matcher(notificationText);
                 if(m.find()){
-                    if (Constants.IS_LOGGABLE) {
-                        Log.i(Constants.LOG_TAG, "Notification text of '" + notificationText + "' matches: '" + regex +"'. Returning");
+                    if(exclude){
+                        if (Constants.IS_LOGGABLE) {
+                            Log.i(Constants.LOG_TAG, "Notification text of '" + notificationText + "' matches: '" + regex +"' and exclude is on. Returning");
+                        }
+                        return;
                     }
-                    return;
-                }
+                } else {
+                    if(!exclude){
+                        if(Constants.IS_LOGGABLE){
+                            Log.i(Constants.LOG_TAG, "Notification text of '" + notificationText + "' does not match: '" + regex +"' and include is on. Returning");
+                        }
+                        return;
+                    }
 
+                }
             } catch (JSONException e){
                 continue;
             }

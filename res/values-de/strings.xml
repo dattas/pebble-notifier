@@ -21,6 +21,11 @@
         <item>Ausgewählte berücksichtigen</item>
     </string-array>
 
+    <string-array name="filter_mode_choices" tools:ignore="MissingTranslation">
+        <item>Filter if contains</item>
+        <item>Filter if does not contain</item>
+    </string-array>
+
     <string name="menu_uncheck_all">Alle abwählen</string>
     <string name="menu_save">Speichern</string>
     <string name="menu_settings">Einstellungen</string>

@@ -68,6 +68,10 @@ public final class Constants {
         OFF, EXCLUDE, INCLUDE
     }
 
+    public static enum IgnoreMode {
+        EXCLUDE, INCLUDE
+    }
+
     public static int getVersionCode(final Context context) {
         try {
             return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;

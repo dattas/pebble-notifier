@@ -33,7 +33,7 @@
                   android:orientation="horizontal"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
-                  android:layout_marginBottom="20dp">
+>
 
         <TextView
                 android:layout_width="wrap_content"
@@ -46,6 +46,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/spnApplications"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginBottom="20dp">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mode"
+                android:id="@+id/textView"
+                android:layout_gravity="center_vertical"/>
+
+        <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spnMode"
+                android:entries="@array/filter_mode_choices"/>
     </LinearLayout>
 
     <ListView
