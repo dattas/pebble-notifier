@@ -271,15 +271,19 @@ public class NotificationService extends AccessibilityService {
                 JSONObject ignore = ignores.getJSONObject(i);
                 String app = ignore.getString("app");
                 boolean exclude = ignore.optBoolean("exclude", true);
+                boolean case_insensitive = ignore.optBoolean("insensitive", true);
                 if((!app.equals("-1")) && (!eventPackageName.equalsIgnoreCase(app))){
                     //this rule doesn't apply to all apps and this isn't the app we're looking for.
                     continue;
                 }
                 String regex = "";
+                if(case_insensitive){
+                    regex += "(?i)";
+                }
                 if(!ignore.getBoolean("raw")){
-                    regex = "(?i)" +Pattern.quote(ignore.getString("match"));
+                    regex += Pattern.quote(ignore.getString("match"));
                 } else {
-                    regex = ignore.getString("match");
+                    regex += ignore.getString("match");
                 }
                 Pattern p = Pattern.compile(regex);
                 Matcher m = p.matcher(notificationText);

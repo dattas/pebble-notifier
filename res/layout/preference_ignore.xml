@@ -14,20 +14,24 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/etMatch"
                 android:layout_weight="1"/>
+        <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ignore_case_insensitive"
+                android:id="@+id/chkCaseInsensitive"
+                android:layout_weight="0"
+                android:layout_marginTop="-7dp"
+                android:layout_marginBottom="7dp"/>
 
         <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/use_regex"
                 android:id="@+id/chkRawRegex"
-                android:layout_weight="0"/>
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/add"
                 android:layout_weight="0"
-                android:id="@+id/btnAdd"
-                android:layout_gravity="center_vertical"/>
+                android:layout_marginTop="-7dp"
+                android:layout_marginBottom="7dp"/>
+
     </LinearLayout>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:orientation="horizontal"
@@ -42,10 +46,22 @@
                 android:id="@+id/textView"
                 android:layout_gravity="center_vertical"/>
 
+        <AutoCompleteTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:layout_weight="1"
+                android:id="@+id/actvApplications"
+                android:completionThreshold="1"
+                android:dropDownHeight="100dp"
+                android:dropDownWidth="fill_parent"
+                android:inputType="textMultiLine|textNoSuggestions"/>
+
         <Spinner
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/spnApplications"/>
+                android:id="@+id/spnApplications"
+                android:visibility="gone"/>
     </LinearLayout>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:orientation="horizontal"
@@ -66,6 +82,13 @@
                 android:id="@+id/spnMode"
                 android:entries="@array/filter_mode_choices"/>
     </LinearLayout>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add"
+            android:layout_weight="0"
+            android:id="@+id/btnAdd"
+            android:layout_gravity="center_vertical"/>
 
     <ListView
             android:layout_width="fill_parent"

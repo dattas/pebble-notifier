@@ -34,7 +34,10 @@ public class IgnorePreference extends DialogPreference {
     JSONArrayAdapter arrayAdapter;
     ListView lvIgnore;
     EditText etMatch;
+    Button btnAdd;
     CheckBox chkRawRegex;
+    CheckBox chkCaseInsensitive;
+    AutoCompleteTextView actvApplications;
     Spinner spnApplications;
     Spinner spnMode;
     public IgnorePreference(Context context, AttributeSet attrs) {
@@ -48,15 +51,19 @@ public class IgnorePreference extends DialogPreference {
     protected void onBindDialogView(View view) {
 
 
-        Button btnAdd = (Button)view.findViewById(R.id.btnAdd);
+        btnAdd = (Button)view.findViewById(R.id.btnAdd);
         etMatch = (EditText)view.findViewById(R.id.etMatch);
         chkRawRegex = (CheckBox)view.findViewById(R.id.chkRawRegex);
+        chkCaseInsensitive = (CheckBox)view.findViewById(R.id.chkCaseInsensitive);
+        actvApplications = (AutoCompleteTextView)view.findViewById(R.id.actvApplications);
+
         spnApplications = (Spinner)view.findViewById(R.id.spnApplications);
         spnMode = (Spinner)view.findViewById(R.id.spnMode);
         lvIgnore = (ListView) view.findViewById(R.id.lvIgnore);
         lvIgnore.setAdapter(arrayAdapter);
         lvIgnore.setEmptyView(view.findViewById(android.R.id.empty));
         new LoadAppsTask().execute();
+
         lvIgnore.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
             @Override
             public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
@@ -64,37 +71,86 @@ public class IgnorePreference extends DialogPreference {
                 int position = contextInfo.position;
                 long id = contextInfo.id;
                 // the child view who's info we're viewing (should be equal to v)
-                View v = contextInfo.targetView;
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                final View v = contextInfo.targetView;
+                MenuInflater inflater = new MenuInflater(getContext());
+                inflater.inflate(R.menu.preference_ignore_context, menu);
 
-
-                final int arrayPosition = (Integer) v.getTag();
-                final String text = ((TextView)v.findViewById(R.id.tvItem)).getText().toString();
-                builder.setMessage(getContext().getResources().getString(R.string.confirm_delete) + " '" + text + "' ?")
-                        .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                JSONArray temp = new JSONArray();
-                                for(int i = 0; i < arrayAdapter.getJSONArray().length(); i++){
-                                    if(i == arrayPosition){
-                                        continue;
+                //we have to do this mess because DialogPreference doesn't allow for onMenuItemSelected or onOptionsItemSelected. Bleh
+                menu.findItem(R.id.btnEdit).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        final int arrayPosition = (Integer) v.getTag();
+                        final String text = ((TextView) v.findViewById(R.id.tvItem)).getText().toString();
+                        JSONArray temp = new JSONArray();
+                        for (int i = 0; i < arrayAdapter.getJSONArray().length(); i++) {
+                            try {
+                                JSONObject ignore = arrayAdapter.getJSONArray().getJSONObject(i);
+                                if (i == arrayPosition) {
+                                    etMatch.setText(ignore.getString("match"));
+                                    chkRawRegex.setChecked(ignore.getBoolean("raw"));
+                                    chkCaseInsensitive.setChecked(ignore.optBoolean("insensitive", true));
+                                    String app = ignore.getString("app");
+                                    if(app == "-1"){
+                                        actvApplications.setText(getContext().getString(R.string.ignore_any));
+                                    } else {
+                                        actvApplications.setText(app);
                                     }
-                                    try {
-                                        temp.put(arrayAdapter.getJSONArray().getJSONObject(i));
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                    boolean exclude = ignore.optBoolean("exclude", true);
+                                    if(exclude){
+                                        spnMode.setSelection(Constants.IgnoreMode.EXCLUDE.ordinal());
+                                    } else {
+                                        spnMode.setSelection(Constants.IgnoreMode.INCLUDE.ordinal());
                                     }
+                                    continue;
                                 }
-                                arrayAdapter.setJSONArray(temp);
 
-                                arrayAdapter.notifyDataSetChanged();
+                                temp.put(ignore);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        })
-                        .setNegativeButton(R.string.decline, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // User cancelled the dialog
-                            }
-                        });
-                builder.create().show();
+                        }
+                        arrayAdapter.setJSONArray(temp);
+
+                        arrayAdapter.notifyDataSetChanged();
+                        return true;
+                    }
+                });
+                menu.findItem(R.id.btnDelete).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+
+
+                        final int arrayPosition = (Integer) v.getTag();
+                        final String text = ((TextView) v.findViewById(R.id.tvItem)).getText().toString();
+                        builder.setMessage(getContext().getResources().getString(R.string.confirm_delete) + " '" + text + "' ?")
+                                .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        JSONArray temp = new JSONArray();
+                                        for (int i = 0; i < arrayAdapter.getJSONArray().length(); i++) {
+                                            if (i == arrayPosition) {
+                                                continue;
+                                            }
+                                            try {
+                                                temp.put(arrayAdapter.getJSONArray().getJSONObject(i));
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                        arrayAdapter.setJSONArray(temp);
+
+                                        arrayAdapter.notifyDataSetChanged();
+                                    }
+                                })
+                                .setNegativeButton(R.string.decline, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // User cancelled the dialog
+                                    }
+                                });
+                        builder.create().show();
+                        return true;
+                    }
+                });
             }
         });
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -104,18 +160,18 @@ public class IgnorePreference extends DialogPreference {
                 try {
                     item.put("match", etMatch.getText().toString());
                     item.put("raw", chkRawRegex.isChecked());
-                    if(spnApplications == null){
-                        //If they can't wait for the application list to load, then put it as any instead of crashing
+                    item.put("insensitive", chkCaseInsensitive.isChecked());
+                    if (actvApplications.getText().toString().equalsIgnoreCase(getContext().getString(R.string.ignore_any))) {
                         item.put("app", "-1");
                     } else {
-                        item.put("app", spnApplications.getSelectedView().getTag().toString());
+                        item.put("app", actvApplications.getText().toString());
                     }
-                    if(spnMode.getSelectedItemPosition() == Constants.IgnoreMode.INCLUDE.ordinal()){
+                    if (spnMode.getSelectedItemPosition() == Constants.IgnoreMode.INCLUDE.ordinal()) {
                         item.put("exclude", false);
                     } else {
                         item.put("exclude", true);
                     }
-                    if(Constants.IS_LOGGABLE){
+                    if (Constants.IS_LOGGABLE) {
                         Log.i(Constants.LOG_TAG, "Item is: " + item.toString());
                     }
                     arrayAdapter.getJSONArray().put(item);
@@ -127,9 +183,40 @@ public class IgnorePreference extends DialogPreference {
 
             }
         });
+        actvApplications.setText(getContext().getString(R.string.ignore_any));
+        actvApplications.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actvApplications.showDropDown();
+            }
+        });
+        actvApplications.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ApplicationInfo pkg = (ApplicationInfo) parent.getItemAtPosition(position);
+                if (pkg == null) {
+                    actvApplications.setText(getContext().getString(R.string.ignore_any));
+                } else {
+                    actvApplications.setText(pkg.packageName);
+                }
+            }
+        });
+        actvApplications.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus){
+                    actvApplications.showDropDown();
+                } else {
+                    if (actvApplications.getText().length() == 0){
+                        actvApplications.setText(getContext().getString(R.string.ignore_any));
+                    }
+                }
+            }
+        });
         super.onBindDialogView(view);
 
     }
+
     @Override
     protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
         String tempValue;
@@ -158,6 +245,9 @@ public class IgnorePreference extends DialogPreference {
     protected void onDialogClosed(boolean positiveResult) {
         // When the user selects "OK", persist the new value
         if (positiveResult) {
+            if(etMatch.getText().toString().trim().length() > 0){
+                btnAdd.performClick();
+            }
             String tempValue = arrayAdapter.getJSONArray().toString();
             if(Constants.IS_LOGGABLE){
                 Log.i(Constants.LOG_TAG, "Setting preference to be: " + tempValue);
@@ -165,6 +255,7 @@ public class IgnorePreference extends DialogPreference {
             persistString(tempValue);
         }
     }
+
     private class LoadAppsTask extends AsyncTask<Void, Integer, Void> {
         List<PackageInfo> pkgAppsList;
         List<ApplicationInfo> appsList;
@@ -207,21 +298,43 @@ public class IgnorePreference extends DialogPreference {
                 //something went wrong
                 return;
             }
-            packageAdapter adapter = new packageAdapter(getContext(), appsList
-                    .toArray(new ApplicationInfo[appsList.size()]));
-            spnApplications.setAdapter(adapter);
+            ArrayList<ApplicationInfo> tmp = new ArrayList<ApplicationInfo>();
+            for(ApplicationInfo pkg : appsList){
+                tmp.add(pkg);
+            }
+            packageAdapter adapter = new packageAdapter(getContext(), tmp);
+            //spnApplications.setAdapter(adapter);
+            actvApplications.setAdapter(adapter);
 
         }
     }
 
-    private class packageAdapter extends ArrayAdapter<ApplicationInfo> {
+    private class packageAdapter extends ArrayAdapter<ApplicationInfo> implements Filterable {
         private final Context       context;
-        private final ApplicationInfo[] packages;
+        private ArrayList<ApplicationInfo> packages;
+        private ArrayList<ApplicationInfo> mOriginalValues;
+        private ArrayFilter mFilter;
 
-        public packageAdapter(Context context, ApplicationInfo[] packages) {
+        public packageAdapter(Context context, ArrayList<ApplicationInfo> packages) {
             super(context, R.layout.list_convert_item, packages);
             this.context = context;
             this.packages = packages;
+            this.mOriginalValues = new ArrayList<ApplicationInfo>(packages);
+        }
+        @Override
+        public int getCount(){
+            return packages.size();
+        }
+        @Override
+        public ApplicationInfo getItem(int position) {
+            return packages.get(position);
+        }
+        @Override
+        public Filter getFilter() {
+            if (mFilter == null) {
+                mFilter = new ArrayFilter();
+            }
+            return mFilter;
         }
         @Override
         public View getDropDownView(int position, View convertView,ViewGroup parent) {
@@ -235,22 +348,90 @@ public class IgnorePreference extends DialogPreference {
         private View getCustomView(int position, View rowView, ViewGroup parent){
             if (rowView == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                rowView = inflater.inflate(R.layout.list_convert_item, parent, false);
+                rowView = inflater.inflate(R.layout.list_filter_item, parent, false);
 
             }
 
-            ApplicationInfo info = packages[position];
+            ApplicationInfo info = packages.get(position);
 
             TextView tvText = (TextView)rowView.findViewById(R.id.tvItem);
+            TextView tvSubText = (TextView)rowView.findViewById(R.id.tvSubItem);
+            ImageView iv = (ImageView)rowView.findViewById(R.id.ivIcon);
             if(info == null){
                 tvText.setText(context.getString(R.string.ignore_any));
+                tvSubText.setText("");
                 rowView.setTag("-1");
+                iv.setImageDrawable(null);
             } else {
-                tvText.setText(info.loadLabel(getContext().getPackageManager()).toString() + " ("+info.packageName+")");
+                tvText.setText(info.loadLabel(getContext().getPackageManager()).toString());
+                tvSubText.setText("("+info.packageName+")");
+                iv.setImageDrawable(info.loadIcon(getContext().getPackageManager()));
                 rowView.setTag(info.packageName);
             }
 
             return rowView;
+        }
+        private class ArrayFilter extends Filter {
+            private Object lock;
+
+            @Override
+            protected FilterResults performFiltering(CharSequence prefix) {
+                FilterResults results = new FilterResults();
+
+                if (mOriginalValues == null) {
+                    synchronized (lock) {
+                        mOriginalValues = new ArrayList<ApplicationInfo>(packages);
+                    }
+                }
+
+                if (prefix == null || prefix.length() == 0) {
+                    synchronized (lock) {
+                        ArrayList<ApplicationInfo> list = new ArrayList<ApplicationInfo>(mOriginalValues);
+                        results.values = list;
+                        results.count = list.size();
+                    }
+                } else {
+                    final String prefixString = prefix.toString().toLowerCase();
+
+                    ArrayList<ApplicationInfo> values = mOriginalValues;
+                    int count = values.size();
+
+                    ArrayList<ApplicationInfo> newValues = new ArrayList<ApplicationInfo>();
+
+                    for (int i = 0; i < count; i++) {
+                        ApplicationInfo pkg = values.get(i);
+                        if(pkg == null){
+                            continue;
+                        }
+                        String item = pkg.packageName;
+                        if (pkg.packageName.toLowerCase().contains(prefixString) || pkg.loadLabel(context.getPackageManager()).toString().toLowerCase().contains(prefixString)) {
+                            newValues.add(pkg);
+                        }
+
+                    }
+
+                    results.values = newValues;
+                    results.count = newValues.size();
+                }
+
+                return results;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+
+                if(results.values!=null){
+                    packages = (ArrayList<ApplicationInfo>) results.values;
+                }else{
+                    packages = new ArrayList<ApplicationInfo>();
+                }
+                if (results.count > 0) {
+                    notifyDataSetChanged();
+                } else {
+                    notifyDataSetInvalidated();
+                }
+            }
         }
     }
 
