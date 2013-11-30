@@ -28,3 +28,9 @@ proguard/
 *.ipr
 *.iws
 .idea/
+
+#export folder
+export/
+
+#key file
+key.key

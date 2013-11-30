@@ -50,6 +50,7 @@ public final class Constants {
     public static final String  PREFERENCE_CONVERTS                   = "pref_converts";
     public static final String  PREFERENCE_IGNORE                     = "pref_ignore";
     public static final String  PREFERENCE_PKG_RENAMES                = "pref_pkg_renames";
+    public static final String  PREFERENCE_DONT_THROW_MANY_TIME       = "pref_dont_throw_many_time";
 
     // Intents
     public static final String  INTENT_SEND_PEBBLE_NOTIFICATION       = "com.getpebble.action.SEND_NOTIFICATION";
