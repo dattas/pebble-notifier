@@ -60,26 +60,26 @@ public class NotificationService extends AccessibilityService {
         }
     }
 
-    private Mode                          mode                   = Mode.EXCLUDE;
-    private boolean                       notifications_only     = false;
-    private boolean                       no_ongoing_notifs      = false;
-    private boolean                       notification_extras    = false;
-    private boolean                       quiet_hours            = false;
-    private boolean                       notifScreenOn          = true;
-    private boolean                       dontThrowManyTime      = false;
-    private JSONArray                     converts               = new JSONArray();
-    private JSONArray                     ignores                = new JSONArray();
-    private JSONArray                     pkg_renames            = new JSONArray();
-    private long                          min_notification_wait  = 0 * 1000;
-    private long                          notification_last_sent = 0;
-    private Date                          quiet_hours_before     = null;
-    private Date                          quiet_hours_after      = null;
-    private String[]                      packages               = null;
-    private Handler                       mHandler;
-    private File                          watchFile;
-    private Long                          lastChange;
-    private final HashMap<String, String> previousNotification   = new HashMap<String, String>();
-    Queue<queueItem>                      queue;
+    private Mode                    mode                   = Mode.EXCLUDE;
+    private boolean                 notifications_only     = false;
+    private boolean                 no_ongoing_notifs      = false;
+    private boolean                 notification_extras    = false;
+    private boolean                 quiet_hours            = false;
+    private boolean                 notifScreenOn          = true;
+    private boolean                 dontThrowManyTime      = false;
+    private JSONArray               converts               = new JSONArray();
+    private JSONArray               ignores                = new JSONArray();
+    private JSONArray               pkg_renames            = new JSONArray();
+    private long                    min_notification_wait  = 0 * 1000;
+    private long                    notification_last_sent = 0;
+    private Date                    quiet_hours_before     = null;
+    private Date                    quiet_hours_after      = null;
+    private String[]                packages               = null;
+    private Handler                 mHandler;
+    private File                    watchFile;
+    private Long                    lastChange;
+    private HashMap<String, String> previousNotification   = null;
+    Queue<queueItem>                queue;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -318,14 +318,21 @@ public class NotificationService extends AccessibilityService {
         }
 
         // validate don't throw same notification
-        if (dontThrowManyTime) {
-            if (previousNotification.containsKey(eventPackageName)
-                    && previousNotification.get(eventPackageName) == notificationText) {
-                Log.i(Constants.LOG_TAG, "Notification many time =" + notificationText);
-                return;
+        try {
+            if (dontThrowManyTime) {
+                if (previousNotification == null) {
+                    previousNotification = new HashMap<String, String>();
+                }
+                if (previousNotification.containsKey(eventPackageName)
+                        && previousNotification.get(eventPackageName).equalsIgnoreCase(notificationText)) {
+                    Log.i(Constants.LOG_TAG, "Notification many time =" + notificationText);
+                    return;
+                }
             }
+            previousNotification.put(eventPackageName, notificationText);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        previousNotification.put(eventPackageName, notificationText);
 
         // Send the alert to Pebble
 
