@@ -18,6 +18,9 @@
                 android:key="pref_no_ongoing_notif"
                 android:summary="@string/pref_no_ongoing_notif_summ"
                 android:title="@string/pref_no_ongoing_notif" />
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_dont_throw_many_time" android:title="@string/pref_dont_throw_many_time"/>
         <com.dattasmoon.pebble.plugin.ConvertPreference
                 android:defaultValue="[]"
                 android:key="pref_converts"
