@@ -60,6 +60,11 @@ public final class Constants {
     // Accessibility specific items
     public static final String  ACCESSIBILITY_SERVICE                 = "com.dattasmoon.pebble.plugin/com.dattasmoon.pebble.plugin.NotificationService";
 
+    // Sony Specific Items
+    public static final String  EXTENSION_SPECIFIC_ID                 = "COM_DATTASMOON_SONY_PLUGIN_SONY_EXTENSION_ID";
+    public static final String  EXTENSION_KEY                         = "com.dattasmoon.sony.plugin.key";
+    public static final String  INTENT_ACTION_ADD                     = "com.dattasmoon.sony.plugin.notification";
+
     public static enum Type {
         NOTIFICATION, SETTINGS
     };

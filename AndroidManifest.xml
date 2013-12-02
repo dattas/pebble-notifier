@@ -2,18 +2,66 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dattasmoon.pebble.plugin"
     android:installLocation="internalOnly"
-    android:versionCode="22"
+    android:versionCode="23"
     android:versionName="2.8.1" >
 
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="19" />
+    
+    <uses-permission android:name="com.sonyericsson.extras.liveware.aef.EXTENSION_PERMISSION" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Locale.Dark" >
+        <activity
+            android:name="com.dattasmoon.sony.plugin.SonyPreferenceActivity"
+            android:label="@string/pref_sony_activity_title" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        
+        <service android:name="com.dattasmoon.sony.plugin.SonyExtensionService">
+            <intent-filter>
+                <action android:name="com.dattasmoon.sony.plugin.notification" />
+            </intent-filter>
+        </service>
+        
+        <receiver
+            android:name="com.dattasmoon.sony.plugin.SonyExtensionReceiver"
+            android:permission="com.sonyericsson.extras.liveware.aef.HOSTAPP_PERMISSION" >
+            <intent-filter>
+
+                <!-- Generic extension intents. -->
+                <action android:name="com.sonyericsson.extras.liveware.aef.registration.EXTENSION_REGISTER_REQUEST" />
+                <action android:name="com.sonyericsson.extras.liveware.aef.registration.ACCESSORY_CONNECTION" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+
+                <!-- Notification intents -->
+                <action android:name="com.sonyericsson.extras.liveware.aef.notification.VIEW_EVENT_DETAIL" />
+                <action android:name="com.sonyericsson.extras.liveware.aef.notification.REFRESH_REQUEST" />
+
+                <!-- Widget intents -->
+                <action android:name="com.sonyericsson.extras.aef.widget.START_REFRESH_IMAGE_REQUEST" />
+                <action android:name="com.sonyericsson.extras.aef.widget.STOP_REFRESH_IMAGE_REQUEST" />
+                <action android:name="com.sonyericsson.extras.aef.widget.ONTOUCH" />
+                <action android:name="com.sonyericsson.extras.liveware.extension.util.widget.scheduled.refresh" />
+
+                <!-- Control intents -->
+                <action android:name="com.sonyericsson.extras.aef.control.START" />
+                <action android:name="com.sonyericsson.extras.aef.control.STOP" />
+                <action android:name="com.sonyericsson.extras.aef.control.PAUSE" />
+                <action android:name="com.sonyericsson.extras.aef.control.RESUME" />
+                <action android:name="com.sonyericsson.extras.aef.control.ERROR" />
+                <action android:name="com.sonyericsson.extras.aef.control.KEY_EVENT" />
+                <action android:name="com.sonyericsson.extras.aef.control.TOUCH_EVENT" />
+                <action android:name="com.sonyericsson.extras.aef.control.SWIPE_EVENT" />
+            </intent-filter>
+        </receiver>
+        
         <activity
             android:name="com.dattasmoon.pebble.plugin.EditNotificationActivity"
             android:exported="true"

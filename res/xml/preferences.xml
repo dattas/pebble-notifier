@@ -57,6 +57,16 @@
                 android:title="@string/pref_dnd_time_after"
                 android:defaultValue="21:00" />
     </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:key="Sony SW2"
+        android:title="Sony SW2">
+        <!-- Clear sony events -->
+    	<Preference
+        	android:key="@string/pref_key_clear"
+        	android:title="@string/pref_option_clear" />
+    </PreferenceCategory>
+    
     <PreferenceCategory
             android:title="@string/pref_about"
             android:key="About" >
