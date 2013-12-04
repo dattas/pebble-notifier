@@ -29,11 +29,15 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.TargetApi;
 import android.app.Notification;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -65,6 +69,7 @@ public class NotificationService extends AccessibilityService {
     private boolean   notifications_only     = false;
     private boolean   no_ongoing_notifs      = false;
     private boolean   notification_extras    = false;
+    private boolean   useAppIcons            = false;
     private boolean   quiet_hours            = false;
     private boolean   notifScreenOn          = true;
     private JSONArray converts               = new JSONArray();
@@ -250,6 +255,38 @@ public class NotificationService extends AccessibilityService {
             title = eventPackageName;
         }
 
+        // get the icon for the app that posted the notification
+        String iconURIPath = null;
+
+        try {
+            String mPackageName = event.getPackageName().toString();
+
+            int resId = 0;
+            if (useAppIcons) {
+                ApplicationInfo ai = pm.getApplicationInfo(mPackageName, 0);
+                resId = ai.icon;
+            } else {
+                Notification parcelable = (Notification) event.getParcelableData();
+                resId = parcelable.icon;
+            }
+
+            Context remotePackageContext = getApplicationContext().createPackageContext(mPackageName, 0);
+            Resources resources = remotePackageContext.getResources();
+            String tempURI = ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(resId)
+                    + '/' + resources.getResourceTypeName(resId) + '/' + resources.getResourceEntryName(resId);
+            Uri iconURI = Uri.parse(tempURI); // Make sure this is a valid URI
+                                              // before assigning it to the path
+                                              // we pass on
+
+            iconURIPath = tempURI;
+            if (Constants.IS_LOGGABLE) {
+                Log.i(Constants.LOG_TAG, "Notification icon URI object: " + iconURI);
+                Log.i(Constants.LOG_TAG, "Notification icon URI path: " + iconURIPath);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // get the notification text
         String notificationText = event.getText().toString();
         // strip the first and last characters which are [ and ]
@@ -319,7 +356,7 @@ public class NotificationService extends AccessibilityService {
         // Send the alert to Pebble
 
         sendToPebble(title, notificationText);
-        sendToSmartWatch(title, notificationText);
+        sendToSmartWatch(iconURIPath, title, notificationText);
 
         if (Constants.IS_LOGGABLE) {
             Log.i(Constants.LOG_TAG, event.toString());
@@ -376,7 +413,7 @@ public class NotificationService extends AccessibilityService {
 
     }
 
-    private void sendToSmartWatch(String title, String notificationText) {
+    private void sendToSmartWatch(String iconURI, String title, String notificationText) {
         title = title.trim();
         notificationText = notificationText.trim();
         if (title.trim().isEmpty() || notificationText.isEmpty()) {
@@ -407,6 +444,7 @@ public class NotificationService extends AccessibilityService {
         i.putExtra("sender", getString(R.string.app_name));
         i.putExtra("title", title);
         i.putExtra("body", notificationText);
+        i.putExtra("iconURI", iconURI);
 
         // Send the alert to Pebble
         if (Constants.IS_LOGGABLE) {
@@ -432,7 +470,6 @@ public class NotificationService extends AccessibilityService {
             try {
                 watchFile.createNewFile();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             watchFile.setLastModified(System.currentTimeMillis());
@@ -465,6 +502,8 @@ public class NotificationService extends AccessibilityService {
                     sharedPreferences.getString(Constants.LOG_TAG + ".packageList", ""));
             editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY,
                     sharedPreferences.getBoolean(Constants.LOG_TAG + ".notificationsOnly", true));
+            editor.putBoolean(Constants.PREFERENCE_APP_ICONS,
+                    sharedPreferences.getBoolean(Constants.LOG_TAG + ".appIcons", false));
             editor.putBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA,
                     sharedPreferences.getBoolean(Constants.LOG_TAG + ".fetchNotificationExtras", false));
             editor.commit();
@@ -489,6 +528,7 @@ public class NotificationService extends AccessibilityService {
         packages = sharedPref.getString(Constants.PREFERENCE_PACKAGE_LIST, "").split(",");
         notifications_only = sharedPref.getBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, true);
         no_ongoing_notifs = sharedPref.getBoolean(Constants.PREFERENCE_NO_ONGOING_NOTIF, false);
+        useAppIcons = sharedPref.getBoolean(Constants.PREFERENCE_APP_ICONS, false);
         min_notification_wait = sharedPref.getInt(Constants.PREFERENCE_MIN_NOTIFICATION_WAIT, 0) * 1000;
         notification_extras = sharedPref.getBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, false);
         notifScreenOn = sharedPref.getBoolean(Constants.PREFERENCE_NOTIF_SCREEN_ON, true);

@@ -54,7 +54,11 @@ public class SonyExtensionService extends ExtensionService {
         if (intent != null && Constants.INTENT_ACTION_ADD.equals(intent.getAction())) {
             Log.d(Constants.LOG_TAG, "onStart action: INTENT_ACTION_ADD");
             Bundle extras = intent.getExtras();
-            addData((String) extras.get("title"), (String) extras.get("body"));
+            String iconURI = null;
+            if (extras.containsKey("iconURI")) {
+                iconURI = (String) extras.get("iconURI");
+            }
+            addData(iconURI, (String) extras.get("title"), (String) extras.get("body"));
             stopSelfCheck();
         }
 
@@ -75,7 +79,7 @@ public class SonyExtensionService extends ExtensionService {
     /**
      * Add some "random" data
      */
-    private void addData(String name, String message) {
+    private void addData(String imageURI, String name, String message) {
         long time = System.currentTimeMillis();
         long sourceId = NotificationUtil.getSourceId(this, Constants.EXTENSION_SPECIFIC_ID);
         if (sourceId == NotificationUtil.INVALID_ID) {
@@ -89,6 +93,9 @@ public class SonyExtensionService extends ExtensionService {
         eventValues.put(Notification.EventColumns.PERSONAL, 1);
         eventValues.put(Notification.EventColumns.PUBLISHED_TIME, time);
         eventValues.put(Notification.EventColumns.SOURCE_ID, sourceId);
+        if (imageURI != null) {
+            eventValues.put(Notification.EventColumns.IMAGE_URI, imageURI);
+        }
 
         try {
             getContentResolver().insert(Notification.Event.URI, eventValues);

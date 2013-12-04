@@ -74,6 +74,8 @@ public class SettingsActivity extends PreferenceActivity {
                     sharedPreferences.getString(Constants.LOG_TAG + ".packageList", ""));
             editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY,
                     sharedPreferences.getBoolean(Constants.LOG_TAG + ".notificationsOnly", true));
+            editor.putBoolean(Constants.PREFERENCE_APP_ICONS,
+                    sharedPreferences.getBoolean(Constants.LOG_TAG + "appIcons", false));
             editor.putBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA,
                     sharedPreferences.getBoolean(Constants.LOG_TAG + ".fetchNotificationExtras", false));
             editor.commit();

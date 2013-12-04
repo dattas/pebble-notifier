@@ -128,5 +128,4 @@ public class SonyRegistrationInformation extends RegistrationInformation {
         // ExtensionUtils.getUriString(mContext, R.drawable.actions_3));
         return sourceValues;
     }
-
 }
