@@ -13,11 +13,13 @@ package com.dattasmoon.sony.plugin;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -27,30 +29,39 @@ import com.sonyericsson.extras.liveware.extension.util.ExtensionUtils;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
 /**
- * The sample preference activity lets the user toggle start/stop of periodic
- * data insertion. It also allows the user to clear all events associated with
- * this extension.
+ * Create the few preferences needed for the Sony preference activity that is
+ * launched via Sony Smart Connect
  */
 public class SonyPreferenceActivity extends PreferenceActivity {
 
-    private static final int DIALOG_READ_ME = 1;
-
-    private static final int DIALOG_CLEAR   = 2;
-
-    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Load the preferences from an XML resource
-        addPreferencesFromResource(R.xml.preferences);
+        // Add the minimal set of preferences specific to Sony Smart Connect
+        addPreferencesFromResource(R.xml.sony_preferences);
+
+        // Add a preference to launch the main app for primary configuration
+        Preference preference = new Preference(this);
+        preference.setTitle(R.string.pref_option_launch_app);
+        preference.setSummary(R.string.pref_option_launch_app_txt);
+        PreferenceCategory pc = (PreferenceCategory) findPreference("Sony SW2");
+        pc.addPreference(preference);
+        preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage("com.dattasmoon.pebble.plugin");
+                startActivity(LaunchIntent);
+                return true;
+            }
+        });
 
         // Handle clear all events
-        Preference preference = findPreference(getString(R.string.pref_key_clear));
+        preference = findPreference(getString(R.string.pref_key_clear));
         preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                showDialog(DIALOG_CLEAR);
+                showDialog(Constants.DIALOG_CLEAR);
                 return true;
             }
         });
@@ -67,7 +78,7 @@ public class SonyPreferenceActivity extends PreferenceActivity {
         Dialog dialog = null;
 
         switch (id) {
-        case DIALOG_CLEAR:
+        case Constants.DIALOG_CLEAR:
             dialog = createClearDialog();
             break;
         default:

@@ -87,12 +87,14 @@
 
     <string name="pref_option_clear">Clear All Events</string>
     <string name="pref_option_clear_txt">"All events on device will be cleared, continue?"</string>
+    <string name="pref_option_launch_app">Launch Configuration App</string>
+    <string name="pref_option_launch_app_txt">Select which notifications to show and other notification options</string>
     <string name="pref_key_clear">preference_key_clear</string>
+    <string name="pref_key_launch_app">preference_key_launch_app</string>
     <string name="pref_sony_activity_title">Settings</string>
     <string name="clear_success">All events have been cleared</string>
     <string name="clear_failure">Failed to clear events</string>
     <string name="text_to_speech">New notification from</string>
     <string name="extension_name">Smart Watch Notifier</string>
-    <string name="configuration_text">Settings</string>
     <string name="source_name">Notifier Source</string>
 </resources>

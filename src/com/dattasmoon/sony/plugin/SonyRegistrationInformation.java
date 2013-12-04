@@ -66,7 +66,7 @@ public class SonyRegistrationInformation extends RegistrationInformation {
         String iconHostapp = ExtensionUtils.getUriString(mContext, R.drawable.ic_launcher);
         String extensionIcon48 = ExtensionUtils.getUriString(mContext, R.drawable.icon_extension_48);
 
-        String configurationText = mContext.getString(R.string.configuration_text);
+        String configurationText = mContext.getString(R.string.pref_sony_activity_title);
         String extensionName = mContext.getString(R.string.extension_name);
 
         ContentValues values = new ContentValues();

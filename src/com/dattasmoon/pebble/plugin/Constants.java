@@ -64,6 +64,7 @@ public final class Constants {
     public static final String  EXTENSION_SPECIFIC_ID                 = "COM_DATTASMOON_SONY_PLUGIN_SONY_EXTENSION_ID";
     public static final String  EXTENSION_KEY                         = "com.dattasmoon.sony.plugin.key";
     public static final String  INTENT_ACTION_ADD                     = "com.dattasmoon.sony.plugin.notification";
+    public static final int     DIALOG_CLEAR                          = 2;
 
     public static enum Type {
         NOTIFICATION, SETTINGS
