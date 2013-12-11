@@ -16,6 +16,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,19 +34,30 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.*;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.*;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 public class EditNotificationActivity extends AbstractPluginActivity {
 
@@ -88,14 +103,14 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                 }
             }
         });
-
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         if (mode == Mode.STANDARD) {
-            sharedPreferences = getSharedPreferences(Constants.LOG_TAG+"_preferences", MODE_MULTI_PROCESS | MODE_PRIVATE);
+            sharedPreferences = getSharedPreferences(Constants.LOG_TAG + "_preferences", MODE_MULTI_PROCESS
+                    | MODE_PRIVATE);
             if (sharedPreferences.getBoolean(Constants.PREFERENCE_TASKER_SET, false)) {
                 tvTaskerNotice.setVisibility(View.VISIBLE);
             }
@@ -126,7 +141,7 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         super.onCreateOptionsMenu(menu);
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.activity_edit_notifications, menu);
-        if(mode == Mode.LOCALE){
+        if (mode == Mode.LOCALE) {
             menu.removeItem(R.id.btnSettings);
         }
         return true;
@@ -150,9 +165,11 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             builder.setMessage(getString(R.string.dialog_uncheck_message));
             builder.setCancelable(false);
             builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                @Override
                 public void onClick(DialogInterface dialog, int buttonId) {
-                    if (lvPackages == null || lvPackages.getAdapter() == null || ((packageAdapter) lvPackages.getAdapter()).selected == null){
-                        //something went wrong
+                    if (lvPackages == null || lvPackages.getAdapter() == null
+                            || ((packageAdapter) lvPackages.getAdapter()).selected == null) {
+                        // something went wrong
                         return;
                     }
                     ((packageAdapter) lvPackages.getAdapter()).selected.clear();
@@ -160,8 +177,9 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                 }
             });
             builder.setNegativeButton(R.string.decline, new DialogInterface.OnClickListener() {
+                @Override
                 public void onClick(DialogInterface dialog, int buttonId) {
-                    //do nothing!
+                    // do nothing!
                 }
             });
             builder.setIcon(android.R.drawable.ic_dialog_alert);
@@ -181,18 +199,18 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             startActivity(settings);
             return true;
         case R.id.btnRename:
-            contextInfo = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+            contextInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             int position = contextInfo.position;
             long id = contextInfo.id;
             // the child view who's info we're viewing (should be equal to v)
             v = contextInfo.targetView;
-             app_name = ((TextView)v.findViewById(R.id.tvPackage)).getText().toString();
+            app_name = ((TextView) v.findViewById(R.id.tvPackage)).getText().toString();
             viewHolder = (ListViewHolder) v.getTag();
-            if (viewHolder == null || viewHolder.chkEnabled == null){
-                //failure
+            if (viewHolder == null || viewHolder.chkEnabled == null) {
+                // failure
                 return true;
             }
-            package_name = (String)viewHolder.chkEnabled.getTag();
+            package_name = (String) viewHolder.chkEnabled.getTag();
             builder.setTitle(R.string.dialog_title_rename_notification);
             final EditText input = new EditText(this);
             input.setHint(app_name);
@@ -201,7 +219,7 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             builder.setNegativeButton(R.string.decline, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    //do nothing
+                    // do nothing
                 }
             });
             final AlertDialog d = builder.create();
@@ -213,10 +231,11 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                         b.setOnClickListener(new OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                //can't be nothing
-                                if(input.getText().length() > 0){
-                                    if(Constants.IS_LOGGABLE){
-                                        Log.i(Constants.LOG_TAG, "Adding rename for "+ package_name + " to " + input.getText());
+                                // can't be nothing
+                                if (input.getText().length() > 0) {
+                                    if (Constants.IS_LOGGABLE) {
+                                        Log.i(Constants.LOG_TAG,
+                                                "Adding rename for " + package_name + " to " + input.getText());
                                     }
                                     JSONObject rename = new JSONObject();
                                     try {
@@ -226,7 +245,7 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
-                                    ((packageAdapter)lvPackages.getAdapter()).notifyDataSetChanged();
+                                    ((packageAdapter) lvPackages.getAdapter()).notifyDataSetChanged();
 
                                     d.dismiss();
                                 } else {
@@ -243,47 +262,47 @@ public class EditNotificationActivity extends AbstractPluginActivity {
 
             return true;
         case R.id.btnRemoveRename:
-            contextInfo = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+            contextInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             // the child view who's info we're viewing (should be equal to v)
             v = contextInfo.targetView;
-            app_name = ((TextView)v.findViewById(R.id.tvPackage)).getText().toString();
+            app_name = ((TextView) v.findViewById(R.id.tvPackage)).getText().toString();
             viewHolder = (ListViewHolder) v.getTag();
-            if (viewHolder == null || viewHolder.chkEnabled == null){
-                if(Constants.IS_LOGGABLE){
+            if (viewHolder == null || viewHolder.chkEnabled == null) {
+                if (Constants.IS_LOGGABLE) {
                     Log.i(Constants.LOG_TAG, "Viewholder is null or chkEnabled is null");
                 }
-                //failure
+                // failure
                 return true;
             }
-            package_name = (String)viewHolder.chkEnabled.getTag();
+            package_name = (String) viewHolder.chkEnabled.getTag();
             builder.setTitle(getString(R.string.dialog_title_remove_rename) + app_name + " (" + package_name + ")?");
-            builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener(){
+            builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if(Constants.IS_LOGGABLE){
+                    if (Constants.IS_LOGGABLE) {
                         Log.i(Constants.LOG_TAG, "Before remove is: " + String.valueOf(arrayRenames.length()));
                     }
                     JSONArray tmp = new JSONArray();
-                    try{
-                        for(int i = 0; i < arrayRenames.length(); i++){
-                            if(!arrayRenames.getJSONObject(i).getString("pkg").equalsIgnoreCase(package_name)){
+                    try {
+                        for (int i = 0; i < arrayRenames.length(); i++) {
+                            if (!arrayRenames.getJSONObject(i).getString("pkg").equalsIgnoreCase(package_name)) {
                                 tmp.put(arrayRenames.getJSONObject(i));
                             }
                         }
-                    } catch (JSONException e){
+                    } catch (JSONException e) {
                         e.printStackTrace();
                     }
                     arrayRenames = tmp;
-                    if(Constants.IS_LOGGABLE){
+                    if (Constants.IS_LOGGABLE) {
                         Log.i(Constants.LOG_TAG, "After remove is: " + String.valueOf(arrayRenames.length()));
                     }
-                    ((packageAdapter)lvPackages.getAdapter()).notifyDataSetChanged();
+                    ((packageAdapter) lvPackages.getAdapter()).notifyDataSetChanged();
                 }
             });
             builder.setNegativeButton(R.string.decline, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    //do nothing
+                    // do nothing
                 }
             });
             builder.show();
@@ -459,17 +478,18 @@ public class EditNotificationActivity extends AbstractPluginActivity {
 
     private class LoadAppsTask extends AsyncTask<Void, Integer, Void> {
         public ArrayList<String> selected;
-        List<PackageInfo> pkgAppsList;
-        List<ApplicationInfo> appsList;
-        JSONArray jsonRenames;
+        List<PackageInfo>        pkgAppsList;
+        List<ApplicationInfo>    appsList;
+        JSONArray                jsonRenames;
 
         @Override
-        protected void onPreExecute(){
+        protected void onPreExecute() {
             PackageManager pm = getPackageManager();
-            try{
+            try {
                 pkgAppsList = pm.getInstalledPackages(0);
-            } catch (RuntimeException e){
-                //this is usually thrown when people have too many things installed (or bloatware in the case of Samsung devices)
+            } catch (RuntimeException e) {
+                // this is usually thrown when people have too many things
+                // installed (or bloatware in the case of Samsung devices)
                 pm = getPackageManager();
                 appsList = pm.getInstalledApplications(0);
             }
@@ -479,12 +499,12 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         @Override
         protected Void doInBackground(Void... unused) {
             if (pkgAppsList == null && appsList == null) {
-                //something went really bad here
+                // something went really bad here
                 return null;
             }
             if (appsList == null) {
                 appsList = new ArrayList<ApplicationInfo>();
-                for(PackageInfo pkg : pkgAppsList){
+                for (PackageInfo pkg : pkgAppsList) {
                     appsList.add(pkg.applicationInfo);
                 }
             }
@@ -494,7 +514,7 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             String packageList;
             String packageRenames;
             if (mode == Mode.LOCALE) {
-                if(Constants.IS_LOGGABLE){
+                if (Constants.IS_LOGGABLE) {
                     Log.i(Constants.LOG_TAG, "Locale mode");
                 }
                 if (localeBundle != null) {
@@ -504,28 +524,28 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                         // this can be null if it doesn't currently exist in the
                         // locale bundle, handle gracefully
                         packageList = "";
-                        if(Constants.IS_LOGGABLE){
+                        if (Constants.IS_LOGGABLE) {
                             Log.i(Constants.LOG_TAG, "Package list from locale bundle is currently null");
                         }
                     }
-                    if (packageRenames == null){
+                    if (packageRenames == null) {
                         packageRenames = "[]";
                     }
                 } else {
                     packageList = "";
                     packageRenames = "[]";
-                    if(Constants.IS_LOGGABLE){
+                    if (Constants.IS_LOGGABLE) {
                         Log.i(Constants.LOG_TAG, "Locale bundle is null");
                     }
                 }
             } else {
-                if(Constants.IS_LOGGABLE){
+                if (Constants.IS_LOGGABLE) {
                     Log.i(Constants.LOG_TAG, "I am pulling from sharedPrefs");
                 }
                 packageList = sharedPreferences.getString(Constants.PREFERENCE_PACKAGE_LIST, "");
                 packageRenames = sharedPreferences.getString(Constants.PREFERENCE_PKG_RENAMES, "[]");
             }
-            if(Constants.IS_LOGGABLE){
+            if (Constants.IS_LOGGABLE) {
                 Log.i(Constants.LOG_TAG, "Package list is: " + packageList);
             }
             for (String strPackage : packageList.split(",")) {
@@ -537,9 +557,9 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                     }
                 }
             }
-            try{
+            try {
                 jsonRenames = new JSONArray(packageRenames);
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
             return null;
@@ -548,10 +568,10 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         @Override
         protected void onPostExecute(Void unused) {
             if (appsList == null) {
-                //something went wrong
+                // something went wrong
                 return;
             }
-            if(jsonRenames == null){
+            if (jsonRenames == null) {
                 arrayRenames = new JSONArray();
             } else {
                 arrayRenames = jsonRenames;
@@ -566,12 +586,13 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                     AdapterView.AdapterContextMenuInfo contextInfo = (AdapterView.AdapterContextMenuInfo) menuInfo;
                     int position = contextInfo.position;
                     long id = contextInfo.id;
-                    // the child view who's info we're viewing (should be equal to v)
+                    // the child view who's info we're viewing (should
+                    // be equal to v)
                     View v = contextInfo.targetView;
                     MenuInflater inflater = getMenuInflater();
                     inflater.inflate(R.menu.list_application_menu, menu);
                     ListViewHolder viewHolder = (ListViewHolder) v.getTag();
-                    if(viewHolder.renamed){
+                    if (viewHolder.renamed) {
                         menu.findItem(R.id.btnRename).setVisible(false);
                         menu.findItem(R.id.btnRemoveRename).setVisible(true);
                     }
@@ -582,11 +603,12 @@ public class EditNotificationActivity extends AbstractPluginActivity {
         }
     }
 
-    private class packageAdapter extends ArrayAdapter<ApplicationInfo> implements OnCheckedChangeListener, OnClickListener {
-        private final Context       context;
-        private final PackageManager pm;
+    private class packageAdapter extends ArrayAdapter<ApplicationInfo> implements OnCheckedChangeListener,
+            OnClickListener {
+        private final Context           context;
+        private final PackageManager    pm;
         private final ApplicationInfo[] packages;
-        public ArrayList<String>    selected;
+        public ArrayList<String>        selected;
 
         public packageAdapter(Context context, ApplicationInfo[] packages, ArrayList<String> selected) {
             super(context, R.layout.list_application_item, packages);
@@ -610,9 +632,9 @@ public class EditNotificationActivity extends AbstractPluginActivity {
                 viewHolder.chkEnabled = (CheckBox) rowView.findViewById(R.id.chkEnabled);
                 viewHolder.chkEnabled.setOnCheckedChangeListener(this);
 
-
                 rowView.setOnClickListener(this);
-                //really wish we didn't have to do this, but if we don't the rowview will gobble this event up.
+                // really wish we didn't have to do this, but if we don't the
+                // rowview will gobble this event up.
                 rowView.setOnCreateContextMenuListener(null);
                 rowView.setTag(viewHolder);
             } else {
@@ -623,24 +645,24 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             String appName = null;
             viewHolder.renamed = false;
             try {
-                for(int i = 0; i < arrayRenames.length(); i++){
-                    if(arrayRenames.getJSONObject(i).getString("pkg").equalsIgnoreCase(info.packageName)){
+                for (int i = 0; i < arrayRenames.length(); i++) {
+                    if (arrayRenames.getJSONObject(i).getString("pkg").equalsIgnoreCase(info.packageName)) {
                         viewHolder.renamed = true;
                         appName = arrayRenames.getJSONObject(i).getString("to");
                         viewHolder.textView.setTag(appName);
                         break;
                     }
                 }
-                if(!viewHolder.renamed){
+                if (!viewHolder.renamed) {
                     appName = info.loadLabel(pm).toString();
                 }
-            } catch (NullPointerException e ){
+            } catch (NullPointerException e) {
                 appName = null;
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 appName = null;
             }
 
-            if(appName != null){
+            if (appName != null) {
                 viewHolder.textView.setText(appName);
             } else {
                 viewHolder.textView.setText("");
@@ -648,10 +670,10 @@ public class EditNotificationActivity extends AbstractPluginActivity {
             Drawable icon;
             try {
                 icon = info.loadIcon(pm);
-            } catch (NullPointerException e){
+            } catch (NullPointerException e) {
                 icon = null;
             }
-            if(icon != null){
+            if (icon != null) {
                 viewHolder.imageView.setImageDrawable(icon);
             }
             viewHolder.chkEnabled.setTag(info.packageName);
@@ -705,18 +727,20 @@ public class EditNotificationActivity extends AbstractPluginActivity {
     }
 
     public static class ListViewHolder {
-        public boolean renamed;
+        public boolean   renamed;
         public TextView  textView;
         public CheckBox  chkEnabled;
         public ImageView imageView;
-        public ListViewHolder(){
+
+        public ListViewHolder() {
             renamed = false;
         }
     }
 
     public class AppComparator implements Comparator<ApplicationInfo> {
         final PackageManager pm;
-        public AppComparator(Context context){
+
+        public AppComparator(Context context) {
             this.pm = context.getPackageManager();
         }
 

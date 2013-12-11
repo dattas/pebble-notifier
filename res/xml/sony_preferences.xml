@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory
+        android:key="Sony SW2"
+        android:title="Sony SW2">
+        <!-- Clear sony events -->
+    	<Preference
+        	android:key="@string/pref_key_clear"
+        	android:title="@string/pref_option_clear" />
+    </PreferenceCategory>
+</PreferenceScreen>

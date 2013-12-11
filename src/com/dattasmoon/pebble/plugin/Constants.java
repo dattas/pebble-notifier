@@ -50,6 +50,7 @@ public final class Constants {
     public static final String  PREFERENCE_CONVERTS                   = "pref_converts";
     public static final String  PREFERENCE_IGNORE                     = "pref_ignore";
     public static final String  PREFERENCE_PKG_RENAMES                = "pref_pkg_renames";
+    public static final String  PREFERENCE_APP_ICONS                  = "preference_key_app_icon";
 
     // Intents
     public static final String  INTENT_SEND_PEBBLE_NOTIFICATION       = "com.getpebble.action.SEND_NOTIFICATION";
@@ -59,6 +60,12 @@ public final class Constants {
 
     // Accessibility specific items
     public static final String  ACCESSIBILITY_SERVICE                 = "com.dattasmoon.pebble.plugin/com.dattasmoon.pebble.plugin.NotificationService";
+
+    // Sony Specific Items
+    public static final String  EXTENSION_SPECIFIC_ID                 = "COM_DATTASMOON_SONY_PLUGIN_SONY_EXTENSION_ID";
+    public static final String  EXTENSION_KEY                         = "com.dattasmoon.sony.plugin.key";
+    public static final String  INTENT_ACTION_ADD                     = "com.dattasmoon.sony.plugin.notification";
+    public static final int     DIALOG_CLEAR                          = 2;
 
     public static enum Type {
         NOTIFICATION, SETTINGS

@@ -85,4 +85,34 @@
     <string name="error_cant_be_blank">This can\'t be blank</string>
     <string name="ignore_case_insensitive">Case\nInsensitive</string>
 
+    <string name="pref_option_clear">Clear All Events</string>
+    <string name="pref_option_clear_txt">"All events on device will be cleared, continue?"</string>
+    <string name="pref_option_app_icon">Use App Icons</string>
+    <string name="pref_option_app_icon_txt">Use the apps icon instead of notification icon for watch notifications</string>
+    <string name="pref_option_launch_app">Launch Configuration App</string>
+    <string name="pref_option_launch_app_txt">Select which notifications to show and other notification options</string>
+    <string name="pref_key_clear">preference_key_clear</string>
+    <string name="pref_key_app_icon">preference_key_app_icon</string>
+    <string name="pref_key_launch_app">preference_key_launch_app</string>
+    <string name="pref_sony_activity_title">Settings</string>
+    <string name="clear_success">All events have been cleared</string>
+    <string name="clear_failure">Failed to clear events</string>
+    <string name="text_to_speech">New notification from</string>
+    <string name="extension_name">Smart Watch Notifier</string>
+    <string name="source_name">Notifier Source</string>
+
+    <!-- A format string for breadcrumbs in the titlebar.  For left to right languages, such as English, the format will look something like "Main Activity > Sub Activity > Sub Activity 2".  Item #1 is the previous path, item #2 is the separator, and item #3 is the current item.  For most left to right languages, this shouldn't need to be changed. -->
+    <string name="twofortyfouram_locale_breadcrumb_format">%1$s%2$s%3$s</string>
+
+    <!-- The separator character for breadcrumbs.  For most left to right languages, this shouldn't need to be changed. -->
+    <string name="twofortyfouram_locale_breadcrumb_separator">\u0020&gt;\u0020</string>
+    
+    <!-- The Don't Save button in the menu or Action Bar.  MDPI 21 character maximum -->
+    <string name="twofortyfouram_locale_menu_dontsave">Cancel</string>
+
+    <!-- The Help button in the menu or Action Bar.  MDPI 21 character maximum -->
+    <string name="twofortyfouram_locale_menu_help">Help</string>
+
+    <!-- The Save button in the menu or Action Bar.  MDPI 21 character maximum -->
+    <string name="twofortyfouram_locale_menu_save">Done</string>
 </resources>

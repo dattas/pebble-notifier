@@ -90,7 +90,6 @@ public abstract class AbstractPluginActivity extends Activity {
             return true;
         }
         return false;
-
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)

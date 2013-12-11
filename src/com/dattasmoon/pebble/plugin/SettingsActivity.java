@@ -21,22 +21,30 @@ SOFTWARE.
  */
 package com.dattasmoon.pebble.plugin;
 
+import java.io.File;
+import java.io.IOException;
+
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
+import com.sonyericsson.extras.liveware.extension.util.ExtensionUtils;
+import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
 /**
  * This activity handles any logic for the settings screen (of which there is\
@@ -55,17 +63,24 @@ public class SettingsActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
 
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.LOG_TAG, MODE_MULTI_PROCESS | MODE_PRIVATE);
-        //if old preferences exist, convert them.
-        if(sharedPreferences.contains(Constants.LOG_TAG + ".mode")){
-            SharedPreferences sharedPref = getSharedPreferences(Constants.LOG_TAG + "_preferences", MODE_MULTI_PROCESS | MODE_PRIVATE);
+        // if old preferences exist, convert them.
+        if (sharedPreferences.contains(Constants.LOG_TAG + ".mode")) {
+            SharedPreferences sharedPref = getSharedPreferences(Constants.LOG_TAG + "_preferences", MODE_MULTI_PROCESS
+                    | MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putInt(Constants.PREFERENCE_MODE, sharedPreferences.getInt(Constants.LOG_TAG + ".mode", Constants.Mode.OFF.ordinal()));
-            editor.putString(Constants.PREFERENCE_PACKAGE_LIST, sharedPreferences.getString(Constants.LOG_TAG + ".packageList", ""));
-            editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY, sharedPreferences.getBoolean(Constants.LOG_TAG + ".notificationsOnly", true));
-            editor.putBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA, sharedPreferences.getBoolean(Constants.LOG_TAG + ".fetchNotificationExtras", false));
+            editor.putInt(Constants.PREFERENCE_MODE,
+                    sharedPreferences.getInt(Constants.LOG_TAG + ".mode", Constants.Mode.OFF.ordinal()));
+            editor.putString(Constants.PREFERENCE_PACKAGE_LIST,
+                    sharedPreferences.getString(Constants.LOG_TAG + ".packageList", ""));
+            editor.putBoolean(Constants.PREFERENCE_NOTIFICATIONS_ONLY,
+                    sharedPreferences.getBoolean(Constants.LOG_TAG + ".notificationsOnly", true));
+            editor.putBoolean(Constants.PREFERENCE_APP_ICONS,
+                    sharedPreferences.getBoolean(Constants.LOG_TAG + "appIcons", false));
+            editor.putBoolean(Constants.PREFERENCE_NOTIFICATION_EXTRA,
+                    sharedPreferences.getBoolean(Constants.LOG_TAG + ".fetchNotificationExtras", false));
             editor.commit();
 
-            //clear out all old preferences
+            // clear out all old preferences
             editor = sharedPreferences.edit();
             editor.clear();
             editor.commit();
@@ -89,7 +104,7 @@ public class SettingsActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 pref_version_clicks++;
-                if(pref_version_clicks > 5){
+                if (pref_version_clicks > 5) {
                     final Dialog easterDialog = new Dialog(SettingsActivity.this);
                     easterDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
                     easterDialog.setContentView(getLayoutInflater().inflate(R.layout.dialog_easter_hidden, null));
@@ -104,14 +119,14 @@ public class SettingsActivity extends PreferenceActivity {
                 }
                 return true;
 
-
             }
         });
 
         Preference pref_donate = findPreference("pref_donate");
         pref_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
             public boolean onPreferenceClick(Preference preference) {
-                //send intent
+                // send intent
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(Constants.DONATION_URL));
                 startActivity(i);
@@ -119,11 +134,25 @@ public class SettingsActivity extends PreferenceActivity {
             }
         });
 
+        // Handle clear all events
+        Preference preference = findPreference(getString(R.string.pref_key_clear));
+        preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                showDialog(Constants.DIALOG_CLEAR);
+                return true;
+            }
+        });
 
+        // Remove preferences that are not supported by the accessory
+        if (!ExtensionUtils.supportsHistory(getIntent())) {
+            preference = findPreference(getString(R.string.pref_key_clear));
+            getPreferenceScreen().removePreference(preference);
+        }
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         File watchFile = new File(getFilesDir() + "PrefsChanged.none");
         if (!watchFile.exists()) {
             try {
@@ -135,6 +164,72 @@ public class SettingsActivity extends PreferenceActivity {
             watchFile.setLastModified(System.currentTimeMillis());
         }
         super.onPause();
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog = null;
+
+        switch (id) {
+        case Constants.DIALOG_CLEAR:
+            dialog = createClearDialog();
+            break;
+        default:
+            Log.w(Constants.LOG_TAG, "Not a valid dialog id: " + id);
+            break;
+        }
+
+        return dialog;
+    }
+
+    /**
+     * Create the Clear events dialog
+     * 
+     * @return the Dialog
+     */
+    private Dialog createClearDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.pref_option_clear_txt).setTitle(R.string.pref_option_clear)
+                .setIcon(android.R.drawable.ic_input_delete)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        new ClearEventsTask().execute();
+                    }
+                }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        return builder.create();
+    }
+
+    /**
+     * Clear all messaging events
+     */
+    private class ClearEventsTask extends AsyncTask<Void, Void, Integer> {
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            int nbrDeleted = 0;
+            nbrDeleted = NotificationUtil.deleteAllEvents(SettingsActivity.this);
+            return nbrDeleted;
+        }
+
+        @Override
+        protected void onPostExecute(Integer id) {
+            if (id != NotificationUtil.INVALID_ID) {
+                Toast.makeText(SettingsActivity.this, R.string.clear_success, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(SettingsActivity.this, R.string.clear_failure, Toast.LENGTH_SHORT).show();
+            }
+        }
+
     }
 
 }
