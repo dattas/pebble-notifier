@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Constants for SmartWatch 2. -->
+<resources>
+
+    <dimen name="smart_watch_2_control_width">220px</dimen>
+    <dimen name="smart_watch_2_control_height">176px</dimen>
+    
+    <dimen name="smart_watch_2_statusbar_height">28px</dimen>
+
+    <dimen name="smart_watch_2_widget_width">204px</dimen>
+    <dimen name="smart_watch_2_widget_height">60px</dimen>
+    
+    <dimen name="smart_watch_2_text_size_large">20px</dimen>
+    <dimen name="smart_watch_2_text_size_medium">15px</dimen>
+    <dimen name="smart_watch_2_text_size_small">13px</dimen>
+
+    <color name="smart_watch_2_text_color_grey">#ffe6e6e6</color>
+    <color name="smart_watch_2_text_color_orange">#fff0832d</color>
+    <color name="smart_watch_2_text_color_white">#ffffffff</color>
+
+</resources>
