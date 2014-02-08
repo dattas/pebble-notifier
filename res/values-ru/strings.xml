@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+	<string name="app_name" tools:ignore="MissingTranslation">Pebble Notifier</string>
+	<string name="notification_title_hint" tools:ignore="MissingTranslation">My pebble notification title</string>
+	<string name="notification_body_hint" tools:ignore="MissingTranslation">Notification body goes here! You can use any tasker variables such as %NTITLE for the notification title</string>
+	<string name="body" tools:ignore="MissingTranslation">Тело</string>
+	<string name="title" tools:ignore="MissingTranslation">Заголовок</string>
+	<string name="mode" tools:ignore="MissingTranslation">Режим</string>
+	<string name="accessibility_description" tools:ignore="MissingTranslation">This allows Pebble Notifier to forward notifications to your pebble!</string>
+	<string name="application_icon" tools:ignore="MissingTranslation">Application Icon</string>
+	<string name="accessability_error" tools:ignore="MissingTranslation">This application will not work by itself until you have enabled Pebble Notifier in the Accessibility settings. Tap here to go to the Accessibility settings!</string>
+	<string name="show_only_notifications" tools:ignore="MissingTranslation">Send only notifications</string>
+	<string name="tasker_notice" tools:ignore="MissingTranslation">Please note that the last settings for this application was set by Tasker. Your Tasker settings will overwrite everything you set here.</string>
+	<string name="loading_applications" tools:ignore="MissingTranslation">Загружаем приложения</string>
+	<string name="fetch_detailed_notifications" tools:ignore="MissingTranslation">Fetch Detailed notifications for apps</string>
+	<string-array name="mode_choices" tools:ignore="MissingTranslation">
+		<item>Выкл</item>
+		<item>Исключить выбранные приложения</item>
+		<item>Включить ТОЛЬКО выбранные приложения</item>
+	</string-array>
+	<string-array name="filter_mode_choices" tools:ignore="MissingTranslation">
+		<item>Фильтровать, если содержит</item>
+		<item>Фильтровать, если не содержит</item>
+	</string-array>
+	<string name="menu_uncheck_all">Снять выделения</string>
+	<string name="menu_save">Сохранить</string>
+	<string name="menu_settings">Настройки</string>
+	<string name="menu_about">О программе</string>
+	<string name="menu_donate">Поддержать</string>
+	<string name="title_activity_settings">Настройки</string>
+	<string name="action_settings">Настройки</string>
+	<string name="pref_notif_screen_on">Уведомлять, когда включен экран</string>
+	<string name="pref_notif_screen_on_summ">Если это выбрано, тогда оповещения будут отправлены на Pebble, когда экран телефона включен</string>
+	<string name="pref_cat_dnd">Настройки \"Не беспокоить\"</string>
+	<string name="pref_cat_gen">Общие настройки</string>
+	<string name="pref_notif_only_summ">Если выключено, то всплывающие сообщения Android также будут отправлены на ваш Pebble</string>
+	<string name="pref_notif_only">Только оповещения</string>
+	<string name="pref_fetch_notif_extras_summ">Some older or skinned android handsets modify the notification
+        structure. If you are not getting proper notifications or are crashing, turn this off!</string>
+	<string name="pref_fetch_notif_extras">Получать подробные оповещения</string>
+	<string name="pref_dnd_time_enabled_summ">Allows you to prevent any notifications from being sent from Pebble
+        Notifier to your Pebble</string>
+	<string name="pref_dnd_time_enabled">Тихое время</string>
+	<string name="pref_dnd_time_before_summ">Никаких оповещений до этого времени</string>
+	<string name="pref_dnd_time_before">Тихое время - Ничего до</string>
+	<string name="pref_dnd_time_after_summ">Никаких оповещений после этого времени</string>
+	<string name="pref_dnd_time_after">Тихое время - Ничего после</string>
+	<string name="pref_cat_dnd_quiet">Беззвучный режим</string>
+	<string name="pref_donate_summ">Donations help development so if you like Pebble Notifier, please donate by clicking
+        here.</string>
+	<string name="pref_donate">Поддержать</string>
+	<string name="pref_about">О Программе</string>
+	<string name="easter_dialog_text">Hello Pebble Notifier user,\n\nThank you for your curiosity. I wish I had something I could offer you for finding this message but I\'m just a college student giving this app away for free. I feel like app functionality should be complete for all users and because of this I\'ve included all of the functionality of the application to everybody, not just those who find this message. Due to these feelings this little message is pretty boring.\n\nAs a sorry for doing a lame hidden message you can email me at dattasmoon@gmail.com asking to be in the beta community. You\'ll be able to receive updates on upcoming features and help test my code before it goes out to the public!\n\nThank you for using my application,\n-Dattas Moonchaser\n</string>
+	<string name="pref_no_ongoing_notif_summ">Android notifications that have the ongoing flag set are not sent to your
+        Pebble</string>
+	<string name="pref_no_ongoing_notif">Don\'t send ongoing notifications</string>
+	<string name="text_change">I want this setting to change</string>
+	<string name="text_tasker_setting">to this value</string>
+	<string name="pref_convert_summ">Convert characters or text that are unsupported on the Pebble watch to readable characters before sending</string>
+	<string name="pref_convert">Convert Characters or Text</string>
+	<string name="confirm_delete">Do you want to delete</string>
+	<string name="confirm">Да</string>
+	<string name="decline">Нет</string>
+	<string name="empty_conversions">No conversions yet</string>
+	<string name="empty_filter">No filters yet</string>
+	<string name="use_regex">Use Regex\n(Advanced)</string>
+	<string name="run_filter_against">Run against app</string>
+	<string name="add">Добавить</string>
+	<string name="pref_ignore_summ">List of words or regular expressions where if it matches, it will not send the notification to your Pebble</string>
+	<string name="pref_ignore">Filter list</string>
+	<string name="dialog_confirm_title">Подтверждение</string>
+	<string name="dialog_uncheck_message">Are you sure you want to uncheck all of the boxes below?</string>
+	<string name="ignore_any">Любой</string>
+	<string name="dialog_title_rename_notification">Rename notification title?</string>
+	<string name="dialog_title_remove_rename">Do you want to remove the rename for </string>
+	<string name="error_cant_be_blank">Это не может быть пустым</string>
+	<string name="ignore_case_insensitive">Case\nInsensitive</string>
+</resources>
